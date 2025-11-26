@@ -101,7 +101,7 @@ ${knowledgeBase}
 5. Never say "I am a bot". Act like a human expert.
 `;
 
-        // 5. CALL GEMINI
+        // 5. CALL GEMINI 2.5
         const contents = [
             {
                 role: "user",
@@ -118,35 +118,27 @@ ${knowledgeBase}
             }
         ];
 
-        // Switched to stable 'gemini-1.5-flash' to prevent 404/Undefined errors
         const result = await ai.models.generateContent({
-            model: "gemini-1.5-flash", 
+            model: "gemini-2.5-flash", 
             contents: contents
         });
 
-        // 🛑 ROBUST ERROR HANDLING
-        // Check if the result and response exist before accessing .text()
+        // 🛑 ROBUST ERROR HANDLING (Fixes the crash)
+        // Check if response exists before accessing .text()
         if (!result || !result.response) {
-            console.error("Gemini Error: Result or Response is undefined.", JSON.stringify(result, null, 2));
-            throw new Error("AI returned an empty response.");
+            console.error("Gemini API Error: Result returned but .response is undefined.", JSON.stringify(result, null, 2));
+            throw new Error("The AI model returned an empty or blocked response.");
         }
 
         let responseText = "";
-        
-        // Try to extract text safely
         try {
-            if (typeof result.response.text === 'function') {
-                responseText = result.response.text();
-            } else if (result.response.candidates && result.response.candidates[0].content) {
-                // Fallback for raw structure if helper fails
-                responseText = result.response.candidates[0].content.parts[0].text;
-            }
-        } catch (e) {
-            console.error("Text Extraction Error:", e);
-            responseText = "I apologize, but I'm having trouble formulating a response right now.";
+            responseText = result.response.text();
+        } catch (textError) {
+             // Fallback if .text() fails (e.g. safety blocks)
+            console.error("Text Extraction Error:", textError);
+            responseText = "I'm sorry, I can't answer that right now. Please contact support.";
         }
-
-        if (!responseText) responseText = "I apologize, but I cannot answer that.";
+        
         responseText = responseText.replace(/---BREAK---/g, '\n\n');
 
         // 6. SAVE & RETURN
