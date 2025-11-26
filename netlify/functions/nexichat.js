@@ -115,8 +115,7 @@ ${knowledgeBase}
 
 --- RULES ---
 1. NO external knowledge. Use only provided facts.
-3. Use "---BREAK---" to separate distinct concepts.
-5. Never say "I am a bot". Act like a human expert.
+2. Never say "I am a bot". Act like a human expert.
 `;
 
         // 5. CALL GEMINI 2.5
