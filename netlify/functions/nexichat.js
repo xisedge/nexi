@@ -13,7 +13,7 @@ let cachedKnowledge = null;
 async function getKnowledgeBase() {
     if (cachedKnowledge) return cachedKnowledge;
     try {
-        const url = "https://nexiknowledgebase.netlify.app/nexichat-knowledgebase.txt";
+        const url = "https://nexiknowledgebase.netlify.app/nexichat-knowledgebase-txt";
         const response = await fetch(url);
         if (response.status !== 200) return "";
         const text = await response.text();
