@@ -1,9 +1,11 @@
-const { createClient } = require('@supabase/supabase-js'); // <--- CRITICAL: DO NOT MISS THIS LINE
-const { GoogleGenAI } = require('@google/genai');
+const { createClient } = require('@supabase/supabase-js');
+// 1. REMOVED the top-level require for GoogleGenAI to prevent the crash
 
 // --- CONFIGURATION ---
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+// 2. We declare 'ai' here but initialize it inside the handler
+let ai = null;
 
 // --- RAG HELPER: Fetch Knowledge Base ---
 let cachedKnowledge = null;
@@ -34,6 +36,12 @@ exports.handler = async (event) => {
     // 1. Handle Preflight & Methods
     if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
     if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: 'Method Not Allowed' };
+
+    // 3. DYNAMIC IMPORT FIX: Load the AI library here, safely
+    if (!ai) {
+        const { GoogleGenAI } = await import('@google/genai');
+        ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    }
 
     try {
         const { message, sessionId } = JSON.parse(event.body);
