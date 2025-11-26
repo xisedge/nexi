@@ -1,0 +1,12 @@
+# Netlify Configuration File
+
+[build]
+  # Specify the functions directory again, just to be sure
+  functions = "netlify/functions"
+
+[[headers]]
+  for = "/.netlify/functions/gemini-chat"
+  [headers.values]
+    # Allow all origins to connect (the fix for CORS)
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "POST"
