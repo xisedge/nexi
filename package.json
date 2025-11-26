@@ -1,0 +1,22 @@
+{
+  "name": "nexi-chat-backend",
+  "version": "1.0.0",
+  "description": "Backend for NEXI Chatbot using Netlify Functions, Supabase, and Gemini.",
+  "main": "netlify/functions/chat.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "netlify",
+    "gemini",
+    "ai",
+    "supabase"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.12.0",
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
