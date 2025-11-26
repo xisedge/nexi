@@ -1,9 +1,11 @@
+const { createClient } = require('@supabase/supabase-js'); // <--- CRITICAL: DO NOT MISS THIS LINE
+const { GoogleGenAI } = require('@google/genai');
+
 // --- CONFIGURATION ---
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // --- RAG HELPER: Fetch Knowledge Base ---
-// We use a global variable to cache this so we don't fetch it 100 times a second.
 let cachedKnowledge = null;
 
 async function getKnowledgeBase() {
@@ -13,7 +15,6 @@ async function getKnowledgeBase() {
         const response = await fetch(url);
         if (response.status !== 200) return "";
         const text = await response.text();
-        // Limit context to 20k chars to save tokens, adjust as needed
         cachedKnowledge = text.substring(0, 20000); 
         return cachedKnowledge;
     } catch (e) {
@@ -38,8 +39,7 @@ exports.handler = async (event) => {
         const { message, sessionId } = JSON.parse(event.body);
         if (!message || !sessionId) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Data' }) };
 
-        // 2. CHECK FOR TRIVIAL PROMPTS (Optimization)
-        // We handle these locally to save money/time, BUT we must save them to DB so memory stays consistent.
+        // 2. TRIVIAL RESPONSES
         const lower = message.toLowerCase().trim();
         const trivialResponses = {
             'thanks': "You're very welcome! Let me know if you need anything else.",
@@ -50,60 +50,50 @@ exports.handler = async (event) => {
 
         if (trivialResponses[lower]) {
             const reply = trivialResponses[lower];
-            // Save to Supabase so context isn't lost
             await supabase.from('chat_history').insert([
                 { session_id: sessionId, role: 'user', content: message },
                 { session_id: sessionId, role: 'assistant', content: reply }
             ]);
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ reply: reply })
-            };
+            return { statusCode: 200, headers, body: JSON.stringify({ reply: reply }) };
         }
 
-        // 3. RETRIEVE MEMORY (Supabase)
-        // Fetch last 10 messages for context
+        // 3. MEMORY
         const { data: history } = await supabase
             .from('chat_history')
             .select('role, content')
             .eq('session_id', sessionId)
             .order('created_at', { ascending: true })
-            .limit(10);
+            .limit(12);
 
-        // Convert DB history to Gemini SDK Format
         const pastMessages = history ? history.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
             parts: [{ text: msg.content }]
         })) : [];
 
-        // 4. PREPARE RAG CONTEXT & PERSONA
+        // 4. PREPARE CONTEXT
         const knowledgeBase = await getKnowledgeBase();
         
-        // This is your exact Persona + Rules block
-        const brandPersona = `You are "Blu," the dedicated, expert customer service assistant for I AM XIS. Your authority is derived only from the provided knowledge and rules.
+        const brandPersona = `You are "Blu," the expert assistant for I AM XIS. 
+Your tone is professional, concise, and friendly.
 
---- BRAND IDENTITY ---
-Core Business: I AM XIS is a premium design studio creating personalized, made-to-order essentials.
-Tone: Professional, concise, explicitly friendly but not overly informal.
-Constraint: Never mention you are an AI.
+--- CORE KNOWLEDGE ---
+- Production: 3-5 business days.
+- Shipping: Depends on carrier.
+- Returns: 7 days, ONLY if damaged.
+- Contact: hello@iamxis.studio | +234 708 005 4074.
 
 --- KNOWLEDGE BASE ---
 ${knowledgeBase}
 
---- STRICT RULES (SUMMARY) ---
+--- RULES ---
 1. NO external knowledge. Use only provided facts.
 2. If asked about "iamxis.com.ng", explain we are temporarily on "iamxis.studio".
 3. Use "---BREAK---" to separate distinct concepts.
 4. If a user says "I want to order", reply: "You can order directly via our shop here - https://iamxis.studio/shop".
-5. Delivery: 3-5 business days.
-6. Returns: 7 days, ONLY if damaged.
-7. Support Email: hello@iamxis.studio
-8. Check "blu-ai-knowledge.txt" for all other 59 specific rules.
+5. Never say "I am a bot". Act like a human expert.
 `;
 
-        // 5. CALL GEMINI (New SDK)
-        // We prime the model with the System Instruction first
+        // 5. CALL GEMINI 2.5
         const contents = [
             {
                 role: "user",
@@ -126,17 +116,14 @@ ${knowledgeBase}
         });
 
         let responseText = result.response.text();
-        
-        // Clean up the "---BREAK---" for the HTML Frontend
         responseText = responseText.replace(/---BREAK---/g, '\n\n');
 
-        // 6. SAVE TO DB
+        // 6. SAVE & RETURN
         await supabase.from('chat_history').insert([
             { session_id: sessionId, role: 'user', content: message },
             { session_id: sessionId, role: 'assistant', content: responseText }
         ]);
 
-        // 7. RETURN (mapped to 'reply' for your frontend)
         return {
             statusCode: 200,
             headers,
