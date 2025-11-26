@@ -123,20 +123,21 @@ ${knowledgeBase}
             contents: contents
         });
 
-        // 🛑 ROBUST ERROR HANDLING (Fixes the crash)
-        // Check if response exists before accessing .text()
-        if (!result || !result.response) {
-            console.error("Gemini API Error: Result returned but .response is undefined.", JSON.stringify(result, null, 2));
-            throw new Error("The AI model returned an empty or blocked response.");
+        // 🛑 ROBUST DATA EXTRACTION
+        let responseText = "";
+
+        // Path 1: Direct candidates (New SDK behavior shown in your logs)
+        if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+            responseText = result.candidates[0].content.parts[0].text;
+        } 
+        // Path 2: Helper wrapper (Older versions or different methods)
+        else if (result.response && typeof result.response.text === 'function') {
+             responseText = result.response.text();
         }
 
-        let responseText = "";
-        try {
-            responseText = result.response.text();
-        } catch (textError) {
-             // Fallback if .text() fails (e.g. safety blocks)
-            console.error("Text Extraction Error:", textError);
-            responseText = "I'm sorry, I can't answer that right now. Please contact support.";
+        if (!responseText) {
+             console.error("Gemini API Error: Unexpected response structure.", JSON.stringify(result, null, 2));
+             throw new Error("The AI model returned an empty or blocked response.");
         }
         
         responseText = responseText.replace(/---BREAK---/g, '\n\n');
