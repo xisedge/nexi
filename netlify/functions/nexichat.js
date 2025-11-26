@@ -1,6 +1,3 @@
-const { createClient } = require('@supabase/supabase-js');
-const { GoogleGenAI } = require('@google/genai');
-
 // --- CONFIGURATION ---
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
