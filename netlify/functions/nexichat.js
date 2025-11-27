@@ -69,6 +69,24 @@ exports.handler = async (event) => {
             };
         }
 
+        // --- ACTION: SAVE ORDER ---
+        if (action === 'saveOrder') {
+            const { error } = await supabase.from('orders').insert([{
+                session_id: sessionId,
+                plan: userDetails.plan,
+                domain: userDetails.domain,
+                details: userDetails.details
+            }]);
+            
+            if (error) console.error('Order Save Error:', error);
+            
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({ success: true })
+            };
+        }
+
         // ============================================================
         // ACTION B: LOAD HISTORY (Persistent Chat)
         // ============================================================
