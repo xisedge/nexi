@@ -26,12 +26,15 @@
         .app-container { display: none; max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         .brand { font-size: 24px; font-weight: 800; color: var(--primary); }
-        .header-actions { display: flex; gap: 10px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
         
         .action-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; }
         .action-btn:hover { border-color: var(--primary); color: var(--primary); }
         .logout-btn { background: #fee2e2; color: #991b1b; border: none; }
         .logout-btn:hover { background: #fecaca; }
+
+        .refresh-indicator { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; margin-right: 5px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         /* TABS */
         .tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
@@ -54,8 +57,6 @@
         .status-paid { background: #f0fdf4; color: #15803d; }
 
         .empty-state { padding: 60px; text-align: center; color: #94a3b8; font-style: italic; }
-
-        /* Last Updated Indicator */
         .last-updated { font-size: 12px; color: #94a3b8; margin-right: 10px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -63,6 +64,7 @@
 </head>
 <body>
 
+    <!-- LOGIN -->
     <div id="loginOverlay">
         <div class="login-box">
             <h2 style="margin-top:0; color: var(--primary);">XIS Admin</h2>
@@ -73,10 +75,14 @@
         </div>
     </div>
 
+    <!-- MAIN DASHBOARD -->
     <div class="app-container" id="app">
         <div class="header">
             <div class="brand">XIS EDGE <span style="font-weight:400; color:#64748b; font-size: 18px;">/ Operations</span></div>
             <div class="header-actions">
+                <div style="display: flex; align-items: center; font-size: 12px; color: #64748b; margin-right: 15px;">
+                    <span class="refresh-indicator"></span> Live
+                </div>
                 <span id="lastUpdated" class="last-updated"></span>
                 <button class="action-btn" onclick="fetchData(true)"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
                 <button class="action-btn logout-btn" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
@@ -88,6 +94,7 @@
             <div class="tab" onclick="switchTab('leads')">Leads</div>
         </div>
 
+        <!-- ORDERS TABLE -->
         <div id="ordersSection" class="data-section active">
             <div class="card">
                 <table id="ordersTable">
@@ -109,6 +116,7 @@
             </div>
         </div>
 
+        <!-- LEADS TABLE -->
         <div id="leadsSection" class="data-section">
             <div class="card">
                 <table id="leadsTable">
@@ -133,7 +141,7 @@
         let secretKey = '';
         let refreshInterval;
 
-        // 1. AUTO-INIT: Check for saved session on load
+        // 1. AUTO-INIT
         document.addEventListener('DOMContentLoaded', () => {
             const savedKey = sessionStorage.getItem('xis_admin_key');
             if (savedKey) {
@@ -142,7 +150,7 @@
             }
         });
 
-        // 2. Authentication Logic
+        // 2. Authentication
         function manualLogin() {
             const input = document.getElementById('adminPass').value;
             if (!input) return;
@@ -156,13 +164,10 @@
             location.reload();
         }
 
-        // 3. Fetch Data (The Engine)
+        // 3. Fetch Data
         async function fetchData(isManual = false) {
             const btn = document.querySelector('.login-btn');
-            const refreshBtnIcon = document.querySelector('.refresh-btn i');
-            
             if(btn) btn.innerText = "Authenticating...";
-            if(isManual && refreshBtnIcon) refreshBtnIcon.classList.add('spin');
 
             try {
                 const response = await fetch('https://xisedge-api.netlify.app/.netlify/functions/nexichat', {
@@ -178,31 +183,27 @@
                 if (response.status === 401) {
                     document.getElementById('loginError').style.display = 'block';
                     if(btn) btn.innerText = "Unlock Dashboard";
-                    // If auth fails, clear storage so we don't loop errors
                     sessionStorage.removeItem('xis_admin_key');
                     return;
                 }
 
                 const data = await response.json();
                 
-                // --- SUCCESS ---
-                // 1. Save Key for Refresh persistence
+                // Success
                 sessionStorage.setItem('xis_admin_key', secretKey);
-                
-                // 2. Update UI
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('app').style.display = 'block';
                 
-                // 3. Update Timestamp
                 const now = new Date();
-                document.getElementById('lastUpdated').innerText = "Updated: " + now.toLocaleTimeString();
+                document.getElementById('lastUpdated').innerText = now.toLocaleTimeString();
 
                 renderOrders(data.orders);
                 renderLeads(data.leads);
 
-                // 4. Start Polling (if not already started)
+                // AUTO REFRESH LOGIC
                 if (!refreshInterval) {
-                    refreshInterval = setInterval(() => fetchData(), 30000); // Auto-refresh every 30s
+                    // CURRENTLY SET TO 20 SECONDS (20000ms)
+                    refreshInterval = setInterval(() => fetchData(), 20000); 
                 }
 
             } catch (err) {
@@ -214,6 +215,7 @@
         // 4. Render Functions
         function renderOrders(orders) {
             const tbody = document.getElementById('ordersBody');
+            // We compare length to avoid flickering redraws if possible, but simple replace is safer for now
             tbody.innerHTML = '';
             
             if (!orders || orders.length === 0) {
@@ -232,8 +234,8 @@
                         </td>
                         <td>${order.customer_phone || '-'}</td>
                         <td>
-                            <span style="font-weight:700; color:#0f172a;">${order.plan.toUpperCase()}</span> 
-                            <span style="color:#64748b; font-size:12px">(${order.cycle})</span>
+                            <span style="font-weight:700; color:#0f172a;">${(order.plan || '').toUpperCase()}</span> 
+                            <span style="color:#64748b; font-size:12px">(${order.cycle || ''})</span>
                         </td>
                         <td style="font-family:monospace; font-weight:600;">${order.amount}</td>
                         <td><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></td>
