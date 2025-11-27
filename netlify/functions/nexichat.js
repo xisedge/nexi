@@ -1,11 +1,14 @@
 const { createClient } = require('@supabase/supabase-js');
+
 // --- CONFIGURATION ---
+// Initialize Supabase immediately
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-// We initialize Gemini inside the handler via dynamic import to avoid ESM errors
+// Initialize Gemini variable (loaded dynamically later to fix Netlify ESM errors)
 let ai = null;
 
 // --- RAG HELPER: Fetch Knowledge Base ---
+// We use a global variable to cache this so we don't fetch it on every single request.
 let cachedKnowledge = null;
 
 async function getKnowledgeBase() {
@@ -15,7 +18,7 @@ async function getKnowledgeBase() {
         const response = await fetch(url);
         if (response.status !== 200) return "";
         const text = await response.text();
-        cachedKnowledge = text.substring(0, 20000); 
+        cachedKnowledge = text.substring(0, 20000); // Limit context size to save tokens
         return cachedKnowledge;
     } catch (e) {
         console.error("RAG Fetch Error:", e);
@@ -24,6 +27,7 @@ async function getKnowledgeBase() {
 }
 
 // --- CORS HEADERS ---
+// These allow your frontend (xisedge.tech) to talk to this backend
 const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -31,11 +35,12 @@ const headers = {
 };
 
 exports.handler = async (event) => {
-    // 1. Handle Preflight & Methods
+    // 1. Handle Preflight (Browser checking permissions) & Method Checks
     if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
     if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: 'Method Not Allowed' };
 
-    // 3. DYNAMIC IMPORT FIX
+    // 2. DYNAMIC IMPORT (CRITICAL FIX)
+    // We load the SDK here because Netlify Functions run in CommonJS, but the SDK is ESM.
     if (!ai) {
         const { GoogleGenAI } = await import('@google/genai');
         ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -43,19 +48,39 @@ exports.handler = async (event) => {
 
     try {
         const body = JSON.parse(event.body);
-        const { message, sessionId, loadHistory } = body;
+        const { message, sessionId, action, userDetails, userName } = body;
 
         if (!sessionId) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Session ID' }) };
 
-        // --- A. HISTORY LOADING MODE ---
-        if (loadHistory) {
-            const { data: fullHistory, error } = await supabase
-                .from('chat_history')
-                .select('role, content, created_at')
-                .eq('session_id', sessionId)
-                .order('created_at', { ascending: true }); // Oldest first for display
+        // ============================================================
+        // ACTION A: SAVE LEAD (Progressive Profiling)
+        // ============================================================
+        if (action === 'saveLead') {
+            const { error } = await supabase.from('leads').insert([{
+                session_id: sessionId,
+                name: userDetails.name,
+                email: userDetails.email,
+                phone: userDetails.phone
+            }]);
+            
+            if (error) console.error('Lead Save Error:', error);
+            
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({ success: true })
+            };
+        }
 
-            if (error) throw error;
+        // ============================================================
+        // ACTION B: LOAD HISTORY (Persistent Chat)
+        // ============================================================
+        if (action === 'loadHistory') {
+            const { data: fullHistory } = await supabase
+                .from('chat_history')
+                .select('role, content')
+                .eq('session_id', sessionId)
+                .order('created_at', { ascending: true });
 
             return {
                 statusCode: 200,
@@ -64,10 +89,13 @@ exports.handler = async (event) => {
             };
         }
 
-        // --- B. CHAT MESSAGE MODE ---
+        // ============================================================
+        // ACTION C: NORMAL CHAT MESSAGE
+        // ============================================================
         if (!message) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Message' }) };
 
-        // 2. TRIVIAL RESPONSES
+        // 2.1. TRIVIAL RESPONSES (Optimization)
+        // Saves money by answering simple "Thanks" locally
         const lower = message.toLowerCase().trim();
         const trivialResponses = {
             'thanks': "You're very welcome! Let me know if you need anything else.",
@@ -85,57 +113,49 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify({ reply: reply }) };
         }
 
-        // 3. MEMORY (Fetch Context for AI)
+        // 2.2. FETCH CONTEXT (Memory)
         const { data: history } = await supabase
             .from('chat_history')
             .select('role, content')
             .eq('session_id', sessionId)
             .order('created_at', { ascending: true })
-            .limit(12);
+            .limit(10);
 
         const pastMessages = history ? history.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
             parts: [{ text: msg.content }]
         })) : [];
 
-        // 4. PREPARE CONTEXT
+        // 2.3. PREPARE PERSONA & RAG
         const knowledgeBase = await getKnowledgeBase();
         
-        const brandPersona = `You are "Blu," the expert assistant for I AM XIS. 
-Your tone is professional, concise, and friendly.
+        // PERSONALIZATION: Inject the user's name if we have it
+        const userContext = userName ? `The user's name is ${userName}. Address them by name naturally occasionally.` : '';
 
---- CORE KNOWLEDGE ---
-- Production: 3-5 business days.
-- Shipping: Depends on carrier.
-- Returns: 7 days, ONLY if damaged.
-- Contact: hello@iamxis.studio | +234 708 005 4074.
+        const brandPersona = `You are "Blu," the dedicated, expert customer service assistant for I AM XIS. 
+Your tone is professional, concise, and explicitly friendly.
+${userContext}
 
 --- KNOWLEDGE BASE ---
 ${knowledgeBase}
 
---- RULES ---
+--- STRICT RULES ---
 1. NO external knowledge. Use only provided facts.
 2. If asked about "iamxis.com.ng", explain we are temporarily on "iamxis.studio".
-3. Use "---BREAK---" to separate distinct concepts.
-4. If a user says "I want to order", reply: "You can order directly via our shop here - https://iamxis.studio/shop".
-5. Never say "I am a bot". Act like a human expert.
+3. Use "---BREAK---" to separate distinct concepts (this becomes a new paragraph).
+4. If a user says "I want to order", reply exactly: "You can order directly via our shop here - https://iamxis.studio/shop".
+5. Delivery: 3-5 business days (Made-to-order).
+6. Returns: 7 days, ONLY if damaged.
+7. Support: hello@iamxis.studio
+8. Never mention you are an AI or a bot. Act like a human expert.
 `;
 
-        // 5. CALL GEMINI
+        // 2.4. CALL GEMINI
         const contents = [
-            {
-                role: "user",
-                parts: [{ text: brandPersona }] 
-            },
-            {
-                role: "model",
-                parts: [{ text: "Understood. I am Blu. I will follow all rules." }]
-            },
+            { role: "user", parts: [{ text: brandPersona }] },
+            { role: "model", parts: [{ text: "Understood. I am Blu." }] },
             ...pastMessages,
-            {
-                role: "user",
-                parts: [{ text: message }]
-            }
+            { role: "user", parts: [{ text: message }] }
         ];
 
         const result = await ai.models.generateContent({
@@ -143,20 +163,24 @@ ${knowledgeBase}
             contents: contents
         });
 
+        // 2.5. EXTRACT RESPONSE SAFELY
         let responseText = "";
+        
+        // Check new SDK structure
         if (result.candidates && result.candidates[0] && result.candidates[0].content) {
             responseText = result.candidates[0].content.parts[0].text;
-        } else if (result.response && typeof result.response.text === 'function') {
+        } 
+        // Check legacy/helper structure (fallback)
+        else if (result.response && typeof result.response.text === 'function') {
              responseText = result.response.text();
         }
 
-        if (!responseText) {
-             throw new Error("The AI model returned an empty or blocked response.");
-        }
+        if (!responseText) throw new Error("Empty Response from AI");
         
+        // Format the response for HTML
         responseText = responseText.replace(/---BREAK---/g, '\n\n');
 
-        // 6. SAVE & RETURN
+        // 2.6. SAVE CONVERSATION
         await supabase.from('chat_history').insert([
             { session_id: sessionId, role: 'user', content: message },
             { session_id: sessionId, role: 'assistant', content: responseText }
