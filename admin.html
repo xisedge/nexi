@@ -9,87 +9,178 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">    
     <style>
+        /* --- 1. CORE VARIABLES & TYPOGRAPHY --- */
         :root {
             --primary: #6c1eef;
             --bg: #f8f9fa;
             --surface: #ffffff;
             --text: #0f172a;
             --border: #e2e8f0;
+            --secondary-text: #64748b; /* Muted text color */
+            --header-weight: 700; /* Bold */
+            --table-header-weight: 600; /* Semi-Bold */
+            --body-weight: 400; /* Regular */
         }
-        body { font-family: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
+        body { 
+            font-family: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 0; 
+            font-size: 16px; /* Enhanced base size */
+            font-weight: var(--body-weight);
+            line-height: 1.5;
+        }
+
+        /* --- 2. LAYOUT & COMPONENTS --- */
+
         /* LOGIN OVERLAY */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.3s; }
         .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; width: 300px; }
         
-        /* PASSWORD WRAPPER (NEW) */
-        .password-wrapper {
-            position: relative;
-            width: 100%;
-            margin: 20px 0;
-        }
-        .login-input { 
-            width: 100%; 
-            padding: 12px; 
-            padding-right: 40px; /* Make space for the eye */
-            border: 2px solid #eee; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            outline: none; 
-            box-sizing: border-box; /* Prevents padding from breaking width */
-        }
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #94a3b8;
-            font-size: 18px;
-        }
+        .password-wrapper { position: relative; width: 100%; margin: 20px 0; }
+        .login-input { width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
+        .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; }
         .toggle-password:hover { color: var(--primary); }
 
-        .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: opacity 0.2s; }
+        .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: var(--header-weight); width: 100%; transition: opacity 0.2s; }
         .login-btn:hover { opacity: 0.9; }
         
         /* DASHBOARD LAYOUT */
         .app-container { display: none; max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .brand { font-size: 24px; font-weight: 600; color: var(--primary); }
+        
+        .brand { 
+            font-size: 28px; 
+            font-weight: var(--header-weight); 
+            color: var(--primary); 
+            line-height: 1.2;
+        }
+        .brand span {
+            font-size: 18px; 
+            font-weight: 400; /* Subtitle weight */
+            color: var(--secondary-text);
+        }
+
         .header-actions { display: flex; gap: 10px; align-items: center; }
         
-        .action-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; }
+        .action-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; font-weight: 500;}
         .action-btn:hover { border-color: var(--primary); color: var(--primary); }
         .logout-btn { background: #fee2e2; color: #991b1b; border: none; }
         .logout-btn:hover { background: #fecaca; }
 
         .refresh-indicator { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; margin-right: 5px; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .last-updated { font-size: 13px; color: var(--secondary-text); margin-right: 10px; }
+
 
         /* TABS */
         .tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
-        .tab { padding: 10px 20px; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 2px solid transparent; }
+        .tab { 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-weight: var(--header-weight); 
+            color: var(--secondary-text); 
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
         .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* TABLES */
+        /* --- 3. TABLES & DATA --- */
         .data-section { display: none; }
         .data-section.active { display: block; animation: fadeIn 0.3s; }
         
         .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: #f1f5f9; padding: 12px 20px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-        td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; } /* Ensures horizontal scroll */
+
+        th { 
+            background: #f1f5f9; 
+            padding: 12px 20px; 
+            text-align: left; 
+            font-size: 13px; 
+            color: var(--secondary-text); 
+            text-transform: uppercase; 
+            font-weight: var(--table-header-weight); 
+            letter-spacing: 0.5px; 
+        }
+        td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background: #f8fafc; }
 
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: 600; text-transform: uppercase; }
+        /* Specific Data Styling for Legibility */
+        td strong {
+            font-weight: 600; /* Semibold for primary names/data */
+        }
+        .numeric-data {
+            font-weight: 600; 
+            font-variant-numeric: tabular-nums; /* Ensures numbers align vertically */
+        }
+        .date-col, .monospace {
+            color: var(--secondary-text);
+        }
+        .monospace {
+            font-family: monospace; 
+            font-size: 12px;
+        }
+        .secondary-detail {
+            color: var(--secondary-text); 
+            font-size: 12px;
+            font-weight: var(--body-weight);
+        }
+
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: var(--header-weight); text-transform: uppercase; }
         .status-pending { background: #fff7ed; color: #c2410c; }
         .status-paid { background: #f0fdf4; color: #15803d; }
 
         .empty-state { padding: 60px; text-align: center; color: #94a3b8; font-style: italic; }
-        .last-updated { font-size: 12px; color: #94a3b8; margin-right: 10px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 4. MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            .app-container { 
+                padding: 20px 10px; 
+            }
+            
+            /* Header Stacking */
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            /* Tabs */
+            .tabs {
+                gap: 10px;
+                overflow-x: auto; 
+                padding-bottom: 5px; 
+                white-space: nowrap; 
+            }
+            .tab {
+                padding: 8px 15px;
+                font-size: 14px;
+                flex-shrink: 0; 
+            }
+
+            /* Table Readability on Mobile */
+            /* Force secondary details (email, cycle) to their own line */
+            .data-section tbody tr td:nth-child(2) .secondary-detail, 
+            .data-section tbody tr td:nth-child(4) .secondary-detail
+            {
+                display: block; 
+                margin-top: 2px;
+            }
+
+            .last-updated {
+                display: none; /* Hide for minimal UI on small screens */
+            }
+        }
     </style>
 </head>
 <body>
@@ -97,7 +188,7 @@
     <div id="loginOverlay">
         <div class="login-box">
             <h2 style="margin-top:0; color: var(--primary);">XIS Admin</h2>
-            <p style="color:#64748b; font-size: 14px; margin-bottom: 20px;">Enter your master key to access.</p>
+            <p style="color:var(--secondary-text); font-size: 14px; margin-bottom: 20px;">Enter your master key to access.</p>
             
             <div class="password-wrapper">
                 <input type="password" id="adminPass" class="login-input" placeholder="Secret Key">
@@ -111,9 +202,9 @@
 
     <div class="app-container" id="app">
         <div class="header">
-            <div class="brand">XIS EDGE <span style="font-weight:400; color:#64748b; font-size: 18px;">/ Operations</span></div>
+            <div class="brand">XIS EDGE <span>/ Operations</span></div>
             <div class="header-actions">
-                <div style="display: flex; align-items: center; font-size: 12px; color: #64748b; margin-right: 15px;">
+                <div style="display: flex; align-items: center; font-size: 12px; color: var(--secondary-text); margin-right: 15px;">
                     <span class="refresh-indicator"></span> Live
                 </div>
                 <span id="lastUpdated" class="last-updated"></span>
@@ -153,7 +244,7 @@
                 <table id="leadsTable">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Date & Time</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
@@ -172,7 +263,7 @@
         let secretKey = '';
         let refreshInterval;
 
-        // 1. TOGGLE PASSWORD VISIBILITY (NEW)
+        // 1. TOGGLE PASSWORD VISIBILITY 
         function togglePasswordVisibility() {
             const input = document.getElementById('adminPass');
             const icon = document.getElementById('toggleBtn');
@@ -257,7 +348,7 @@
             }
         }
 
-        // 5. Render Functions
+        // 5. Render Functions - UPDATED TO USE NEW CSS CLASSES
         function renderOrders(orders) {
             const tbody = document.getElementById('ordersBody');
             tbody.innerHTML = '';
@@ -271,17 +362,17 @@
                 const date = new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
                 const row = `
                     <tr>
-                        <td style="color:#64748b;">${date}</td>
+                        <td class="date-col">${date}</td>
                         <td>
                             <strong>${order.customer_name || 'Unknown'}</strong><br>
-                            <span style="color:#64748b; font-size:12px">${order.customer_email}</span>
+                            <span class="secondary-detail">${order.customer_email}</span>
                         </td>
                         <td>${order.customer_phone || '-'}</td>
                         <td>
-                            <span style="font-weight:700; color:#0f172a;">${(order.plan || '').toUpperCase()}</span> 
-                            <span style="color:#64748b; font-size:12px">(${order.cycle || ''})</span>
+                            <span style="font-weight:700; color:var(--text);">${(order.plan || '').toUpperCase()}</span> 
+                            <span class="secondary-detail">(${order.cycle || ''})</span>
                         </td>
-                        <td style="font-family:monospace; font-weight:600;">${order.amount}</td>
+                        <td class="numeric-data">${order.amount}</td>
                         <td><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></td>
                         <td><span class="status-badge status-pending">Pending Payment</span></td>
                     </tr>
@@ -300,14 +391,16 @@
             }
 
             leads.forEach(lead => {
-                const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                const time = new Date(lead.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
                 const row = `
                     <tr>
-                        <td style="color:#64748b;">${date}</td>
+                        <td class="date-col">${date}<br><span class="secondary-detail">${time}</span></td>
                         <td><strong>${lead.name}</strong></td>
                         <td>${lead.email}</td>
                         <td>${lead.phone}</td>
-                        <td style="font-family:monospace; color:#94a3b8; font-size:12px;">${lead.session_id.slice(0, 8)}...</td>
+                        <td class="monospace">${lead.session_id.slice(0, 8)}...</td>
                     </tr>
                 `;
                 tbody.innerHTML += row;
@@ -321,7 +414,7 @@
             
             document.getElementById(tabName + 'Section').classList.add('active');
             
-            const tabs = document.querySelectorAll('.tab');
+            const tabs = document.querySelectorAll('.tabs .tab');
             if(tabName === 'orders') tabs[0].classList.add('active');
             else tabs[1].classList.add('active');
         }
