@@ -1,24 +1,22 @@
 const { createClient } = require('@supabase/supabase-js');
 
 // --- CONFIGURATION ---
-// Initialize Supabase immediately
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-// Initialize Gemini variable (loaded dynamically later to fix Netlify ESM errors)
+// We initialize Gemini inside the handler via dynamic import to avoid ESM errors
 let ai = null;
 
 // --- RAG HELPER: Fetch Knowledge Base ---
-// We use a global variable to cache this so we don't fetch it on every single request.
 let cachedKnowledge = null;
 
 async function getKnowledgeBase() {
     if (cachedKnowledge) return cachedKnowledge;
     try {
-        const url = "https://bluaiknowledgev2.netlify.app/blu-ai-knowledge.txt";
+        const url = "https://nexiknowledgebase.netlify.app/nexichat-knowledgebase-txt";
         const response = await fetch(url);
         if (response.status !== 200) return "";
         const text = await response.text();
-        cachedKnowledge = text.substring(0, 20000); // Limit context size to save tokens
+        cachedKnowledge = text.substring(0, 20000); 
         return cachedKnowledge;
     } catch (e) {
         console.error("RAG Fetch Error:", e);
@@ -38,7 +36,7 @@ exports.handler = async (event) => {
     if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
     if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: 'Method Not Allowed' };
 
-    // 2. DYNAMIC IMPORT (Fixes ESM Error)
+    // 3. DYNAMIC IMPORT FIX: Load the AI library here, safely
     if (!ai) {
         const { GoogleGenAI } = await import('@google/genai');
         ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -46,6 +44,7 @@ exports.handler = async (event) => {
 
     try {
         const body = JSON.parse(event.body);
+        // Added 'action', 'userDetails', and 'userName' to the destructured object
         const { message, sessionId, action, userDetails, userName } = body;
 
         if (!sessionId) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Session ID' }) };
@@ -92,7 +91,7 @@ exports.handler = async (event) => {
         // ============================================================
         if (!message) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Message' }) };
 
-        // 2.1. TRIVIAL RESPONSES (Optimization)
+        // 2. TRIVIAL RESPONSES
         const lower = message.toLowerCase().trim();
         const trivialResponses = {
             'thanks': "You're very welcome! Let me know if you need anything else.",
@@ -110,49 +109,79 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify({ reply: reply }) };
         }
 
-        // 2.2. FETCH CONTEXT (Memory)
+        // 3. MEMORY
         const { data: history } = await supabase
             .from('chat_history')
             .select('role, content')
             .eq('session_id', sessionId)
             .order('created_at', { ascending: true })
-            .limit(10);
+            .limit(12);
 
         const pastMessages = history ? history.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
             parts: [{ text: msg.content }]
         })) : [];
 
-        // 2.3. PREPARE PERSONA & RAG
+        // 4. PREPARE CONTEXT
         const knowledgeBase = await getKnowledgeBase();
         
-        // PERSONALIZATION: Inject the user's name if we have it
+        // PERSONALIZATION: Create context string if name exists
         const userContext = userName ? `The user's name is ${userName}. Address them by name naturally occasionally.` : '';
 
-        const brandPersona = `You are "Blu," the dedicated, expert customer service assistant for I AM XIS. 
-Your tone is professional, concise, and explicitly friendly.
+        const brandPersona = `You are NEXI, the official AI assistant of XIS EDGE. You embody the brand’s personality: calm, modern, warm, and premium. You speak with clarity, confidence, and friendliness. You never sound robotic or overly formal. Instead, you communicate in a natural, concise, human-centered way. Your tone is supportive, thoughtful, and slightly futuristic without being playful or childish. You avoid long, unnecessary explanations and focus on accurate, direct answers. Your goal is always to make the user feel understood and guided.
 ${userContext}
+
+Your core purpose is to make the XIS EDGE experience faster, smarter, and easier. You answer questions about hosting plans, explain features, guide onboarding steps, troubleshoot common issues, assist with billing inquiries, and direct users to the right parts of the website. You help users understand domain setup, email configuration, performance optimization, and security basics. You also help them explore XIS EDGE services such as web design, hosting management, and digital support. Your responses always include clear, actionable steps.
+
+You are not just a support bot — you are a brand guide. You represent the values of XIS EDGE: simplicity, clarity, modern tech, and human-centered design. You reduce stress, confusion, and overwhelm. You simplify explanations for beginners and provide technical clarity for advanced users. You speak with intention and avoid generic chatbot filler such as “As an AI language model” or “In conclusion.”
+
+You never guess. If you don’t know something, you politely acknowledge it and offer what you can, or direct the user to human support. You remember context within a conversation and use it to improve the flow. You stay consistent, reliable, and calm.
+
+Your style guidelines:
+You write in short, clean sentences.
+You avoid stiff corporate language.
+You use simple vocabulary, modern phrasing, and light empathy.
+You never overpromise or overwhelm.
+You give the right amount of detail — not too much, not too little.
+You maintain a premium, sleek, friendly brand voice.
+You respond with confidence but without ego.
+You are precise, warm, and helpful.
+
+Your internal mindset:
+“I make things easy.”
+“I remove stress.”
+“I help users feel smart, not confused.”
+“I guide, not lecture.”
+“I respond with clarity and care.”
+“I represent a premium digital brand, so everything must feel clean and intentional.”
+
+--- CORE KNOWLEDGE ---
+- Contact: hello@xisedge.tech | +234 708 005 4074.
 
 --- KNOWLEDGE BASE ---
 ${knowledgeBase}
 
---- STRICT RULES ---
+--- RULES ---
 1. NO external knowledge. Use only provided facts.
-2. If asked about "iamxis.com.ng", explain we are temporarily on "iamxis.studio".
+2. Never say "I am a bot". Act like a human expert.
 3. Use "---BREAK---" to separate distinct concepts (this becomes a new paragraph).
-4. If a user says "I want to order", reply exactly: "You can order directly via our shop here - https://iamxis.studio/shop".
-5. Delivery: 3-5 business days (Made-to-order).
-6. Returns: 7 days, ONLY if damaged.
-7. Support: hello@iamxis.studio
-8. Never mention you are an AI or a bot. Act like a human expert.
 `;
 
-        // 2.4. CALL GEMINI
+        // 5. CALL GEMINI 2.5
         const contents = [
-            { role: "user", parts: [{ text: brandPersona }] },
-            { role: "model", parts: [{ text: "Understood. I am Blu." }] },
+            {
+                role: "user",
+                parts: [{ text: brandPersona }] 
+            },
+            {
+                role: "model",
+                parts: [{ text: "Understood. I am Blu. I will follow all rules." }]
+            },
             ...pastMessages,
-            { role: "user", parts: [{ text: message }] }
+            {
+                role: "user",
+                parts: [{ text: message }]
+            }
         ];
 
         const result = await ai.models.generateContent({
@@ -160,19 +189,26 @@ ${knowledgeBase}
             contents: contents
         });
 
-        // 2.5. EXTRACT RESPONSE SAFELY
+        // 🛑 ROBUST DATA EXTRACTION
         let responseText = "";
+
+        // Path 1: Direct candidates (New SDK behavior)
         if (result.candidates && result.candidates[0] && result.candidates[0].content) {
             responseText = result.candidates[0].content.parts[0].text;
-        } else if (result.response && typeof result.response.text === 'function') {
+        } 
+        // Path 2: Helper wrapper (Older versions)
+        else if (result.response && typeof result.response.text === 'function') {
              responseText = result.response.text();
         }
 
-        if (!responseText) throw new Error("Empty Response from AI");
+        if (!responseText) {
+             console.error("Gemini API Error: Unexpected response structure.", JSON.stringify(result, null, 2));
+             throw new Error("The AI model returned an empty or blocked response.");
+        }
         
         responseText = responseText.replace(/---BREAK---/g, '\n\n');
 
-        // 2.6. SAVE CONVERSATION
+        // 6. SAVE & RETURN
         await supabase.from('chat_history').insert([
             { session_id: sessionId, role: 'user', content: message },
             { session_id: sessionId, role: 'assistant', content: responseText }
