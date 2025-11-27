@@ -18,7 +18,7 @@ async function sendNotification(subject, htmlContent) {
     try {
         await resend.emails.send({
             from: 'NEXI Bot <onboarding@resend.dev>', // Change this to your verified domain later
-            to: ['your-email@example.com'], // <--- REPLACE THIS WITH YOUR ACTUAL ADMIN EMAIL
+            to: ['xisedge@gmail.com'], // <--- REPLACE THIS WITH YOUR ACTUAL ADMIN EMAIL
             subject: subject,
             html: htmlContent
         });
