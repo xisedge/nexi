@@ -27,7 +27,6 @@ async function getKnowledgeBase() {
 }
 
 // --- CORS HEADERS ---
-// These allow your frontend (xisedge.tech) to talk to this backend
 const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -35,12 +34,11 @@ const headers = {
 };
 
 exports.handler = async (event) => {
-    // 1. Handle Preflight (Browser checking permissions) & Method Checks
+    // 1. Handle Preflight & Methods
     if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
     if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: 'Method Not Allowed' };
 
-    // 2. DYNAMIC IMPORT (CRITICAL FIX)
-    // We load the SDK here because Netlify Functions run in CommonJS, but the SDK is ESM.
+    // 2. DYNAMIC IMPORT (Fixes ESM Error)
     if (!ai) {
         const { GoogleGenAI } = await import('@google/genai');
         ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -95,7 +93,6 @@ exports.handler = async (event) => {
         if (!message) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Message' }) };
 
         // 2.1. TRIVIAL RESPONSES (Optimization)
-        // Saves money by answering simple "Thanks" locally
         const lower = message.toLowerCase().trim();
         const trivialResponses = {
             'thanks': "You're very welcome! Let me know if you need anything else.",
@@ -165,19 +162,14 @@ ${knowledgeBase}
 
         // 2.5. EXTRACT RESPONSE SAFELY
         let responseText = "";
-        
-        // Check new SDK structure
         if (result.candidates && result.candidates[0] && result.candidates[0].content) {
             responseText = result.candidates[0].content.parts[0].text;
-        } 
-        // Check legacy/helper structure (fallback)
-        else if (result.response && typeof result.response.text === 'function') {
+        } else if (result.response && typeof result.response.text === 'function') {
              responseText = result.response.text();
         }
 
         if (!responseText) throw new Error("Empty Response from AI");
         
-        // Format the response for HTML
         responseText = responseText.replace(/---BREAK---/g, '\n\n');
 
         // 2.6. SAVE CONVERSATION
