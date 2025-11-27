@@ -115,44 +115,6 @@ exports.handler = async (event) => {
             };
         }
 
-        / ============================================================
-        // ACTION: GET DASHBOARD DATA (Admin Only)
-        // ============================================================
-        if (action === 'getDashboardData') {
-            // 1. Verify Password (Security Check)
-            const { adminSecret } = body;
-            if (adminSecret !== process.env.ADMIN_PASSWORD) {
-                return { 
-                    statusCode: 401, 
-                    headers, 
-                    body: JSON.stringify({ error: 'Invalid Password' }) 
-                };
-            }
-
-            // 2. Fetch Leads
-            const { data: leads, error: leadError } = await supabase
-                .from('leads')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            // 3. Fetch Orders
-            const { data: orders, error: orderError } = await supabase
-                .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (leadError || orderError) {
-                return { statusCode: 500, headers, body: JSON.stringify({ error: 'Database Error' }) };
-            }
-
-            // 4. Return Data
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ leads, orders })
-            };
-        }
-
         // ============================================================
         // ACTION C: NORMAL CHAT MESSAGE
         // ============================================================
