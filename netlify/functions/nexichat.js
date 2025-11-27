@@ -2,12 +2,31 @@ const { createClient } = require('@supabase/supabase-js');
 
 // --- CONFIGURATION ---
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Initialize Resend with your API Key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // We initialize Gemini inside the handler via dynamic import to avoid ESM errors
 let ai = null;
 
 // --- RAG HELPER: Fetch Knowledge Base ---
 let cachedKnowledge = null;
+
+// --- EMAIL HELPER FUNCTION ---
+async function sendNotification(subject, htmlContent) {
+    if (!process.env.RESEND_API_KEY) return; // Skip if no key configured
+    
+    try {
+        await resend.emails.send({
+            from: 'NEXI Bot <onboarding@resend.dev>', // Change this to your verified domain later
+            to: ['your-email@example.com'], // <--- REPLACE THIS WITH YOUR ACTUAL ADMIN EMAIL
+            subject: subject,
+            html: htmlContent
+        });
+        console.log("Email sent successfully");
+    } catch (error) {
+        console.error("Email Failed:", error);
+    }
+}
 
 async function getKnowledgeBase() {
     if (cachedKnowledge) return cachedKnowledge;
@@ -60,7 +79,15 @@ exports.handler = async (event) => {
                 phone: userDetails.phone
             }]);
             
-            if (error) console.error('Lead Save Error:', error);
+            if (!error) {
+                // Fire and Forget Email
+                await sendNotification(
+                    `🔥 New Lead: ${userDetails.name}`,
+                    `<p><strong>Name:</strong> ${userDetails.name}</p>
+                     <p><strong>Email:</strong> ${userDetails.email}</p>
+                     <p><strong>Phone:</strong> ${userDetails.phone}</p>`
+                );
+            }
             
             return {
                 statusCode: 200,
@@ -84,9 +111,20 @@ exports.handler = async (event) => {
                 customer_phone: userDetails.phone  // New Column
             }]);
             
-            if (error) {
-                console.error('Order Save Error:', error);
-                // Optional: Return error to frontend if needed
+            if (!error) {
+                // Fire and Forget Email
+                await sendNotification(
+                    `💰 New Order: ${userDetails.plan.toUpperCase()}`,
+                    `<h2>New Hosting Order Received</h2>
+                     <p><strong>Plan:</strong> ${userDetails.plan} (${userDetails.cycle})</p>
+                     <p><strong>Amount:</strong> ${userDetails.price}</p>
+                     <p><strong>Domain:</strong> ${userDetails.domain}</p>
+                     <hr/>
+                     <h3>Customer Details</h3>
+                     <p><strong>Name:</strong> ${userDetails.name}</p>
+                     <p><strong>Email:</strong> ${userDetails.email}</p>
+                     <p><strong>Phone:</strong> ${userDetails.phone}</p>`
+                );
             }
             
             return {
