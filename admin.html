@@ -36,10 +36,10 @@
         .data-section { display: none; }
         .data-section.active { display: block; animation: fadeIn 0.3s; }
         
-        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
+        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { background: #f1f5f9; padding: 12px 20px; text-align: left; font-size: 13px; color: #64748b; text-transform: uppercase; font-weight: 700; }
-        td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background: #f8fafc; }
 
@@ -81,7 +81,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Customer</th>
-                            <th>Plan</th>
+                            <th>Phone</th> <th>Plan</th>
                             <th>Cycle</th>
                             <th>Amount</th>
                             <th>Domain</th>
@@ -165,7 +165,7 @@
             tbody.innerHTML = '';
             
             if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No orders yet.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No orders yet.</td></tr>';
                 return;
             }
 
@@ -178,7 +178,7 @@
                             <strong>${order.customer_name || 'Unknown'}</strong><br>
                             <span style="color:#64748b; font-size:12px">${order.customer_email}</span>
                         </td>
-                        <td><span style="font-weight:600; color:#6c1eef;">${order.plan.toUpperCase()}</span></td>
+                        <td>${order.customer_phone || '-'}</td> <td><span style="font-weight:600; color:#6c1eef;">${order.plan.toUpperCase()}</span></td>
                         <td>${order.cycle}</td>
                         <td>${order.amount}</td>
                         <td>${order.domain}</td>
@@ -220,7 +220,6 @@
             
             document.getElementById(tabName + 'Section').classList.add('active');
             
-            // Simple way to find the clicking tab, usually passed as 'this' but here generic:
             const tabs = document.querySelectorAll('.tab');
             if(tabName === 'orders') tabs[0].classList.add('active');
             else tabs[1].classList.add('active');
