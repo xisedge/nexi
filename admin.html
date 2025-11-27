@@ -12,14 +12,14 @@
         /* --- 1. CORE VARIABLES & TYPOGRAPHY --- */
         :root {
             --primary: #6c1eef;
-            --bg: #fff;
+            --bg: #f8f9fa;
             --surface: #ffffff;
-            --text: #111;
-            --border: #eee;
-            --secondary-text: #555; /* Muted text color */
-            --header-weight: 600; /* Bold */
-            --table-header-weight: 600; /* Semi-Bold */
-            --body-weight: 400; /* Regular */
+            --text: #0f172a;
+            --border: #e2e8f0;
+            --secondary-text: #64748b; 
+            --header-weight: 700; 
+            --table-header-weight: 600; 
+            --body-weight: 400; 
         }
         
         body { 
@@ -28,14 +28,13 @@
             color: var(--text); 
             margin: 0; 
             padding: 0; 
-            font-size: 16px; /* Enhanced base size */
+            font-size: 16px; 
             font-weight: var(--body-weight);
             line-height: 1.5;
         }
+        * { box-sizing: border-box; } /* Ensure padding/border are included in element width */
 
         /* --- 2. LAYOUT & COMPONENTS --- */
-
-        /* LOGIN OVERLAY */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.3s; }
         .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; width: 300px; }
         
@@ -43,7 +42,6 @@
         .login-input { width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
         .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; }
         .toggle-password:hover { color: var(--primary); }
-
         .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: var(--header-weight); width: 100%; transition: opacity 0.2s; }
         .login-btn:hover { opacity: 0.9; }
         
@@ -51,40 +49,55 @@
         .app-container { display: none; max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         
-        .brand { 
-            font-size: 28px; 
-            font-weight: var(--header-weight); 
-            color: var(--primary); 
-            line-height: 1.2;
-        }
-        .brand span {
-            font-size: 18px; 
-            font-weight: 400; /* Subtitle weight */
-            color: var(--secondary-text);
-        }
+        .brand { font-size: 28px; font-weight: var(--header-weight); color: var(--primary); line-height: 1.2; }
+        .brand span { font-size: 18px; font-weight: 400; color: var(--secondary-text); }
 
         .header-actions { display: flex; gap: 10px; align-items: center; }
-        
         .action-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; font-weight: 500;}
         .action-btn:hover { border-color: var(--primary); color: var(--primary); }
         .logout-btn { background: #fee2e2; color: #991b1b; border: none; }
         .logout-btn:hover { background: #fecaca; }
 
         .refresh-indicator { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; margin-right: 5px; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .last-updated { font-size: 13px; color: var(--secondary-text); margin-right: 10px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
+        /* KEY METRICS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: 800; 
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .metric-label {
+            font-size: 14px;
+            color: var(--secondary-text);
+            font-weight: 500;
+            margin-top: 5px;
+        }
+        .primary-highlight {
+            border-left: 5px solid var(--primary); 
+        }
+        .primary-highlight .metric-value {
+            color: var(--primary);
+        }
 
         /* TABS */
         .tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
-        .tab { 
-            padding: 10px 20px; 
-            cursor: pointer; 
-            font-weight: var(--header-weight); 
-            color: var(--secondary-text); 
-            border-bottom: 2px solid transparent;
-            transition: color 0.2s, border-color 0.2s;
-        }
+        .tab { padding: 10px 20px; cursor: pointer; font-weight: var(--header-weight); color: var(--secondary-text); border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; }
         .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
         /* --- 3. TABLES & DATA --- */
@@ -92,93 +105,90 @@
         .data-section.active { display: block; animation: fadeIn 0.3s; }
         
         .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; } /* Ensures horizontal scroll */
+        table { width: 100%; border-collapse: collapse; min-width: 800px; } 
 
         th { 
-            background: #f1f5f9; 
-            padding: 12px 20px; 
-            text-align: left; 
-            font-size: 13px; 
-            color: var(--secondary-text); 
-            text-transform: uppercase; 
-            font-weight: var(--table-header-weight); 
-            letter-spacing: 0.5px; 
+            background: #f1f5f9; padding: 12px 20px; text-align: left; font-size: 13px; color: var(--secondary-text); 
+            text-transform: uppercase; font-weight: var(--table-header-weight); letter-spacing: 0.5px; 
+            cursor: pointer; position: relative; user-select: none; /* Sortable column styles */
         }
+        th.sorted::after { content: ' \25BC'; font-size: 10px; margin-left: 5px; } /* Descending arrow */
+        th.sorted.asc::after { content: ' \25B2'; } /* Ascending arrow */
+
         td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background: #f8fafc; }
 
-        /* Specific Data Styling for Legibility */
-        td strong {
-            font-weight: 600; /* Semibold for primary names/data */
-        }
-        .numeric-data {
-            font-weight: 600; 
-            font-variant-numeric: tabular-nums; /* Ensures numbers align vertically */
-        }
-        .date-col, .monospace {
-            color: var(--secondary-text);
-        }
-        .monospace {
-            font-family: monospace; 
-            font-size: 12px;
-        }
-        .secondary-detail {
-            color: var(--secondary-text); 
-            font-size: 12px;
-            font-weight: var(--body-weight);
-        }
+        td strong { font-weight: 600; }
+        .numeric-data { font-weight: 600; font-variant-numeric: tabular-nums; }
+        .date-col, .monospace { color: var(--secondary-text); }
+        .monospace { font-family: monospace; font-size: 12px; }
+        .secondary-detail { color: var(--secondary-text); font-size: 12px; font-weight: var(--body-weight); }
 
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: var(--header-weight); text-transform: uppercase; }
         .status-pending { background: #fff7ed; color: #c2410c; }
         .status-paid { background: #f0fdf4; color: #15803d; }
-
         .empty-state { padding: 60px; text-align: center; color: #94a3b8; font-style: italic; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 4. MOBILE RESPONSIVENESS --- */
+        /* --- 4. MOBILE CARD VIEW & RESPONSIVENESS --- */
+        .mobile-list-container {
+            display: none; /* Hidden by default, shown via media query */
+            padding: 10px 0;
+        }
+        .mobile-card {
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+        }
+        .mobile-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+        .mobile-card-detail {
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+        }
+        .mobile-card-label {
+            font-weight: 500;
+            color: var(--secondary-text);
+            min-width: 90px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .mobile-card-value {
+            font-weight: 600;
+            text-align: right;
+            flex-grow: 1;
+        }
+
         @media (max-width: 768px) {
-            .app-container { 
-                padding: 20px 10px; 
+            .app-container { padding: 20px 10px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .tabs { gap: 10px; overflow-x: auto; padding-bottom: 5px; white-space: nowrap; }
+            .tab { padding: 8px 15px; font-size: 14px; flex-shrink: 0; }
+            .last-updated { display: none; }
+        }
+        
+        @media (max-width: 600px) {
+            .metrics-grid {
+                grid-template-columns: 1fr; /* Stacked metrics */
             }
-            
-            /* Header Stacking */
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-                margin-bottom: 25px;
+            .card table {
+                display: none; /* HIDE THE WIDE TABLE */
             }
-            .header-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            /* Tabs */
-            .tabs {
-                gap: 10px;
-                overflow-x: auto; 
-                padding-bottom: 5px; 
-                white-space: nowrap; 
-            }
-            .tab {
-                padding: 8px 15px;
-                font-size: 14px;
-                flex-shrink: 0; 
-            }
-
-            /* Table Readability on Mobile */
-            /* Force secondary details (email, cycle) to their own line */
-            .data-section tbody tr td:nth-child(2) .secondary-detail, 
-            .data-section tbody tr td:nth-child(4) .secondary-detail
-            {
-                display: block; 
-                margin-top: 2px;
-            }
-
-            .last-updated {
-                display: none; /* Hide for minimal UI on small screens */
+            .mobile-list-container {
+                display: block !important; /* SHOW THE MOBILE LIST */
             }
         }
     </style>
@@ -212,6 +222,23 @@
                 <button class="action-btn logout-btn" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
             </div>
         </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="metricTotalOrders">0</div>
+                <div class="metric-label">Total Orders</div>
+            </div>
+
+            <div class="metric-card primary-highlight">
+                <div class="metric-value" id="metricPendingAmount">$0</div>
+                <div class="metric-label">Pending Amount</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-value" id="metricTotalLeads">0</div>
+                <div class="metric-label">Total Leads</div>
+            </div>
+        </div>
 
         <div class="tabs">
             <div class="tab active" onclick="switchTab('orders')">Orders</div>
@@ -219,17 +246,18 @@
         </div>
 
         <div id="ordersSection" class="data-section active">
+            <div class="mobile-list-container" id="ordersMobileList"></div>
             <div class="card">
                 <table id="ordersTable">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Customer</th>
-                            <th>Phone</th>
-                            <th>Plan Details</th>
-                            <th>Amount</th>
-                            <th>Domain</th>
-                            <th>Status</th>
+                            <th onclick="sortTable('orders', 0, 'date')">Date</th>
+                            <th onclick="sortTable('orders', 1, 'string')">Customer</th>
+                            <th onclick="sortTable('orders', 2, 'string')">Phone</th>
+                            <th onclick="sortTable('orders', 3, 'string')">Plan Details</th>
+                            <th onclick="sortTable('orders', 4, 'numeric')">Amount</th>
+                            <th onclick="sortTable('orders', 5, 'string')">Domain</th>
+                            <th onclick="sortTable('orders', 6, 'string')">Status</th>
                         </tr>
                     </thead>
                     <tbody id="ordersBody">
@@ -240,15 +268,16 @@
         </div>
 
         <div id="leadsSection" class="data-section">
+            <div class="mobile-list-container" id="leadsMobileList"></div>
             <div class="card">
                 <table id="leadsTable">
                     <thead>
                         <tr>
-                            <th>Date & Time</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Session ID</th>
+                            <th onclick="sortTable('leads', 0, 'date')">Date & Time</th>
+                            <th onclick="sortTable('leads', 1, 'string')">Name</th>
+                            <th onclick="sortTable('leads', 2, 'string')">Email</th>
+                            <th onclick="sortTable('leads', 3, 'string')">Phone</th>
+                            <th onclick="sortTable('leads', 4, 'string')">Session ID</th>
                         </tr>
                     </thead>
                     <tbody id="leadsBody">
@@ -262,6 +291,9 @@
     <script>
         let secretKey = '';
         let refreshInterval;
+        let allOrders = []; // Global data storage for sorting
+        let allLeads = [];  // Global data storage for sorting
+        let currentSort = { table: null, col: -1, dir: 'desc' }; 
 
         // 1. TOGGLE PASSWORD VISIBILITY 
         function togglePasswordVisibility() {
@@ -331,12 +363,29 @@
                 sessionStorage.setItem('xis_admin_key', secretKey);
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('app').style.display = 'block';
+
+                // Save data globally
+                allOrders = data.orders;
+                allLeads = data.leads;
+
+                // CALCULATE METRICS
+                const totalOrders = allOrders.length;
+                const totalLeads = allLeads.length;
+                const pendingAmount = allOrders.reduce((sum, order) => {
+                    // Assuming amount is string like '$100.00' and status 'Pending Payment'
+                    return sum + (order.status === 'pending' ? parseFloat(order.amount.replace(/[^0-9.]/g, '')) : 0);
+                }, 0);
+
+                document.getElementById('metricTotalOrders').innerText = totalOrders.toLocaleString();
+                document.getElementById('metricPendingAmount').innerText = `$${pendingAmount.toFixed(2).toLocaleString()}`;
+                document.getElementById('metricTotalLeads').innerText = totalLeads.toLocaleString();
                 
                 const now = new Date();
                 document.getElementById('lastUpdated').innerText = now.toLocaleTimeString();
 
-                renderOrders(data.orders);
-                renderLeads(data.leads);
+                // Render both views
+                renderOrders(allOrders);
+                renderLeads(allLeads);
 
                 if (!refreshInterval) {
                     refreshInterval = setInterval(() => fetchData(), 5000); 
@@ -348,25 +397,29 @@
             }
         }
 
-        // 5. Render Functions - UPDATED TO USE NEW CSS CLASSES
+        // 5. Render Functions 
         function renderOrders(orders) {
             const tbody = document.getElementById('ordersBody');
+            const mobileList = document.getElementById('ordersMobileList');
             tbody.innerHTML = '';
+            mobileList.innerHTML = '';
             
             if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No orders found.</td></tr>';
+                const emptyRow = '<tr><td colspan="7" class="empty-state">No orders found.</td></tr>';
+                tbody.innerHTML = emptyRow;
+                mobileList.innerHTML = `<div class="empty-state">No orders found.</div>`;
                 return;
             }
 
             orders.forEach(order => {
                 const date = new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                const row = `
+                const customerDetails = `<strong>${order.customer_name || 'Unknown'}</strong><br><span class="secondary-detail">${order.customer_email}</span>`;
+
+                // Table Row
+                const tableRow = `
                     <tr>
                         <td class="date-col">${date}</td>
-                        <td>
-                            <strong>${order.customer_name || 'Unknown'}</strong><br>
-                            <span class="secondary-detail">${order.customer_email}</span>
-                        </td>
+                        <td>${customerDetails}</td>
                         <td>${order.customer_phone || '-'}</td>
                         <td>
                             <span style="font-weight:700; color:var(--text);">${(order.plan || '').toUpperCase()}</span> 
@@ -377,16 +430,35 @@
                         <td><span class="status-badge status-pending">Pending Payment</span></td>
                     </tr>
                 `;
-                tbody.innerHTML += row;
+                tbody.innerHTML += tableRow;
+
+                // Mobile Card
+                const mobileCard = `
+                    <div class="mobile-card">
+                        <div class="mobile-card-header">
+                            <span style="font-weight:700;">${order.customer_name || 'Unknown'}</span>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Plan:</span> <span class="mobile-card-value">${(order.plan || '').toUpperCase()} (${order.cycle || ''})</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Amount:</span> <span class="mobile-card-value numeric-data">${order.amount}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Date:</span> <span class="mobile-card-value date-col">${date}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Domain:</span> <span class="mobile-card-value"><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></span></div>
+                    </div>
+                `;
+                mobileList.innerHTML += mobileCard;
             });
         }
 
         function renderLeads(leads) {
             const tbody = document.getElementById('leadsBody');
+            const mobileList = document.getElementById('leadsMobileList');
             tbody.innerHTML = '';
+            mobileList.innerHTML = '';
 
             if (!leads || leads.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads captured yet.</td></tr>';
+                const emptyRow = '<tr><td colspan="5" class="empty-state">No leads captured yet.</td></tr>';
+                tbody.innerHTML = emptyRow;
+                mobileList.innerHTML = `<div class="empty-state">No leads captured yet.</div>`;
                 return;
             }
 
@@ -394,7 +466,8 @@
                 const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
                 const time = new Date(lead.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-                const row = `
+                // Table Row
+                const tableRow = `
                     <tr>
                         <td class="date-col">${date}<br><span class="secondary-detail">${time}</span></td>
                         <td><strong>${lead.name}</strong></td>
@@ -403,7 +476,21 @@
                         <td class="monospace">${lead.session_id.slice(0, 8)}...</td>
                     </tr>
                 `;
-                tbody.innerHTML += row;
+                tbody.innerHTML += tableRow;
+
+                // Mobile Card
+                const mobileCard = `
+                    <div class="mobile-card">
+                        <div class="mobile-card-header">
+                            <span style="font-weight:700;">${lead.name}</span>
+                            <span class="date-col">${date}</span>
+                        </div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Email:</span> <span class="mobile-card-value">${lead.email}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Phone:</span> <span class="mobile-card-value">${lead.phone}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Time:</span> <span class="mobile-card-value secondary-detail">${time}</span></div>
+                    </div>
+                `;
+                mobileList.innerHTML += mobileCard;
             });
         }
 
@@ -417,6 +504,64 @@
             const tabs = document.querySelectorAll('.tabs .tab');
             if(tabName === 'orders') tabs[0].classList.add('active');
             else tabs[1].classList.add('active');
+        }
+
+        // 7. SORTING LOGIC
+        function sortTable(tableName, column, type) {
+            const tableData = tableName === 'orders' ? allOrders : allLeads;
+            const renderFn = tableName === 'orders' ? renderOrders : renderLeads;
+            const headerRow = document.querySelector(`#${tableName}Table thead tr`);
+
+            let newDir = 'asc';
+            if (currentSort.table === tableName && currentSort.col === column && currentSort.dir === 'asc') {
+                newDir = 'desc';
+            }
+
+            tableData.sort((a, b) => {
+                let valA, valB;
+
+                if (tableName === 'orders') {
+                    const keys = ['created_at', 'customer_name', 'customer_phone', 'plan', 'amount', 'domain', 'status'];
+                    valA = a[keys[column]];
+                    valB = b[keys[column]];
+                } else { // leads
+                    const keys = ['created_at', 'name', 'email', 'phone', 'session_id'];
+                    valA = a[keys[column]];
+                    valB = b[keys[column]];
+                }
+
+                if (type === 'numeric') {
+                    valA = parseFloat(String(valA).replace(/[^0-9.]/g, '')) || 0;
+                    valB = parseFloat(String(valB).replace(/[^0-9.]/g, '')) || 0;
+                } else if (type === 'date') {
+                    valA = new Date(valA).getTime();
+                    valB = new Date(valB).getTime();
+                } else if (type === 'string') {
+                    valA = String(valA).toLowerCase();
+                    valB = String(valB).toLowerCase();
+                }
+                
+                let comparison = 0;
+                if (valA > valB) comparison = 1;
+                if (valA < valB) comparison = -1;
+
+                return newDir === 'asc' ? comparison : comparison * -1;
+            });
+
+            currentSort = { table: tableName, col: column, dir: newDir };
+
+            headerRow.querySelectorAll('th').forEach((th, index) => {
+                th.classList.remove('sorted', 'asc');
+                if (index === column) {
+                    th.classList.add('sorted');
+                    if (newDir === 'asc') {
+                        th.classList.add('asc');
+                    }
+                }
+            });
+
+            // Re-render
+            renderFn(tableData);
         }
     </script>
 </body>
