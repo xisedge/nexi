@@ -164,7 +164,6 @@ ${knowledgeBase}
 --- RULES ---
 1. NO external knowledge. Use only provided facts.
 2. Never say "I am a bot". Act like a human expert.
-3. Use "---BREAK---" to separate distinct concepts (this becomes a new paragraph).
 `;
 
         // 5. CALL GEMINI 2.5
