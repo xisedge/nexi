@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">    
     <style>
         :root {
             --primary: #6c1eef;
@@ -21,7 +21,34 @@
         /* LOGIN OVERLAY */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.3s; }
         .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; width: 300px; }
-        .login-input { width: 100%; padding: 12px; margin: 20px 0; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; }
+        
+        /* PASSWORD WRAPPER (NEW) */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .login-input { 
+            width: 100%; 
+            padding: 12px; 
+            padding-right: 40px; /* Make space for the eye */
+            border: 2px solid #eee; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            outline: none; 
+            box-sizing: border-box; /* Prevents padding from breaking width */
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 18px;
+        }
+        .toggle-password:hover { color: var(--primary); }
+
         .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: opacity 0.2s; }
         .login-btn:hover { opacity: 0.9; }
         
@@ -67,18 +94,21 @@
 </head>
 <body>
 
-    <!-- LOGIN -->
     <div id="loginOverlay">
         <div class="login-box">
-            <h2 style="margin-top:0; color: var(--primary);">XIS EDGE ADMIN</h2>
+            <h2 style="margin-top:0; color: var(--primary);">XIS Admin</h2>
             <p style="color:#64748b; font-size: 14px; margin-bottom: 20px;">Enter your master key to access.</p>
-            <input type="password" id="adminPass" class="login-input" placeholder="Secret Key">
+            
+            <div class="password-wrapper">
+                <input type="password" id="adminPass" class="login-input" placeholder="Secret Key">
+                <i class="bi bi-eye-slash toggle-password" id="toggleBtn" onclick="togglePasswordVisibility()"></i>
+            </div>
+
             <button class="login-btn" onclick="manualLogin()">Unlock Dashboard</button>
             <p id="loginError" style="color: #ef4444; font-size: 13px; margin-top: 15px; display: none;">Invalid Password</p>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
     <div class="app-container" id="app">
         <div class="header">
             <div class="brand">XIS EDGE <span style="font-weight:400; color:#64748b; font-size: 18px;">/ Operations</span></div>
@@ -97,7 +127,6 @@
             <div class="tab" onclick="switchTab('leads')">Leads</div>
         </div>
 
-        <!-- ORDERS TABLE -->
         <div id="ordersSection" class="data-section active">
             <div class="card">
                 <table id="ordersTable">
@@ -119,7 +148,6 @@
             </div>
         </div>
 
-        <!-- LEADS TABLE -->
         <div id="leadsSection" class="data-section">
             <div class="card">
                 <table id="leadsTable">
@@ -144,7 +172,23 @@
         let secretKey = '';
         let refreshInterval;
 
-        // 1. AUTO-INIT
+        // 1. TOGGLE PASSWORD VISIBILITY (NEW)
+        function togglePasswordVisibility() {
+            const input = document.getElementById('adminPass');
+            const icon = document.getElementById('toggleBtn');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            } else {
+                input.type = "password";
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            }
+        }
+
+        // 2. AUTO-INIT
         document.addEventListener('DOMContentLoaded', () => {
             const savedKey = sessionStorage.getItem('xis_admin_key');
             if (savedKey) {
@@ -153,7 +197,7 @@
             }
         });
 
-        // 2. Authentication
+        // 3. Authentication
         function manualLogin() {
             const input = document.getElementById('adminPass').value;
             if (!input) return;
@@ -167,7 +211,7 @@
             location.reload();
         }
 
-        // 3. Fetch Data
+        // 4. Fetch Data
         async function fetchData(isManual = false) {
             const btn = document.querySelector('.login-btn');
             if(btn) btn.innerText = "Authenticating...";
@@ -203,10 +247,8 @@
                 renderOrders(data.orders);
                 renderLeads(data.leads);
 
-                // AUTO REFRESH LOGIC
                 if (!refreshInterval) {
-                    // CURRENTLY SET TO 20 SECONDS (20000ms)
-                    refreshInterval = setInterval(() => fetchData(), 20000); 
+                    refreshInterval = setInterval(() => fetchData(), 5000); 
                 }
 
             } catch (err) {
@@ -215,10 +257,9 @@
             }
         }
 
-        // 4. Render Functions
+        // 5. Render Functions
         function renderOrders(orders) {
             const tbody = document.getElementById('ordersBody');
-            // We compare length to avoid flickering redraws if possible, but simple replace is safer for now
             tbody.innerHTML = '';
             
             if (!orders || orders.length === 0) {
@@ -273,7 +314,7 @@
             });
         }
 
-        // 5. Tabs Logic
+        // 6. Tabs Logic
         function switchTab(tabName) {
             document.querySelectorAll('.data-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
