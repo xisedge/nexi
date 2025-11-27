@@ -16,16 +16,22 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
         /* LOGIN OVERLAY */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; }
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.3s; }
         .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; width: 300px; }
         .login-input { width: 100%; padding: 12px; margin: 20px 0; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; }
-        .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: opacity 0.2s; }
+        .login-btn:hover { opacity: 0.9; }
         
         /* DASHBOARD LAYOUT */
         .app-container { display: none; max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         .brand { font-size: 24px; font-weight: 800; color: var(--primary); }
-        .refresh-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+        .header-actions { display: flex; gap: 10px; }
+        
+        .action-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; }
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .logout-btn { background: #fee2e2; color: #991b1b; border: none; }
+        .logout-btn:hover { background: #fecaca; }
 
         /* TABS */
         .tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
@@ -36,18 +42,21 @@
         .data-section { display: none; }
         .data-section.active { display: block; animation: fadeIn 0.3s; }
         
-        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; }
+        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: #f1f5f9; padding: 12px 20px; text-align: left; font-size: 13px; color: #64748b; text-transform: uppercase; font-weight: 700; }
+        th { background: #f1f5f9; padding: 12px 20px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
         td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background: #f8fafc; }
 
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .status-pending { background: #fff7ed; color: #c2410c; }
         .status-paid { background: #f0fdf4; color: #15803d; }
 
-        .empty-state { padding: 40px; text-align: center; color: #94a3b8; }
+        .empty-state { padding: 60px; text-align: center; color: #94a3b8; font-style: italic; }
+
+        /* Last Updated Indicator */
+        .last-updated { font-size: 12px; color: #94a3b8; margin-right: 10px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -56,17 +65,22 @@
 
     <div id="loginOverlay">
         <div class="login-box">
-            <h2 style="margin-top:0">Admin Access</h2>
-            <input type="password" id="adminPass" class="login-input" placeholder="Enter Secret Key">
-            <button class="login-btn" onclick="authenticate()">Unlock Dashboard</button>
-            <p id="loginError" style="color: red; font-size: 13px; margin-top: 10px; display: none;">Invalid Password</p>
+            <h2 style="margin-top:0; color: var(--primary);">XIS Admin</h2>
+            <p style="color:#64748b; font-size: 14px; margin-bottom: 20px;">Enter your master key to access.</p>
+            <input type="password" id="adminPass" class="login-input" placeholder="Secret Key">
+            <button class="login-btn" onclick="manualLogin()">Unlock Dashboard</button>
+            <p id="loginError" style="color: #ef4444; font-size: 13px; margin-top: 15px; display: none;">Invalid Password</p>
         </div>
     </div>
 
     <div class="app-container" id="app">
         <div class="header">
-            <div class="brand">XIS EDGE <span style="font-weight:400; color:#64748b;">/ Admin</span></div>
-            <button class="refresh-btn" onclick="fetchData()"><i class="bi bi-arrow-clockwise"></i> Refresh Data</button>
+            <div class="brand">XIS EDGE <span style="font-weight:400; color:#64748b; font-size: 18px;">/ Operations</span></div>
+            <div class="header-actions">
+                <span id="lastUpdated" class="last-updated"></span>
+                <button class="action-btn" onclick="fetchData(true)"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                <button class="action-btn logout-btn" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
         </div>
 
         <div class="tabs">
@@ -81,14 +95,16 @@
                         <tr>
                             <th>Date</th>
                             <th>Customer</th>
-                            <th>Phone</th> <th>Plan</th>
-                            <th>Cycle</th>
+                            <th>Phone</th>
+                            <th>Plan Details</th>
                             <th>Amount</th>
                             <th>Domain</th>
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="ordersBody"></tbody>
+                    <tbody id="ordersBody">
+                        <tr><td colspan="7" class="empty-state">Loading orders...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -105,7 +121,9 @@
                             <th>Session ID</th>
                         </tr>
                     </thead>
-                    <tbody id="leadsBody"></tbody>
+                    <tbody id="leadsBody">
+                         <tr><td colspan="5" class="empty-state">Loading leads...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -113,19 +131,38 @@
 
     <script>
         let secretKey = '';
+        let refreshInterval;
 
-        // 1. Authentication
-        function authenticate() {
+        // 1. AUTO-INIT: Check for saved session on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedKey = sessionStorage.getItem('xis_admin_key');
+            if (savedKey) {
+                document.getElementById('adminPass').value = savedKey;
+                manualLogin();
+            }
+        });
+
+        // 2. Authentication Logic
+        function manualLogin() {
             const input = document.getElementById('adminPass').value;
             if (!input) return;
             secretKey = input;
             fetchData();
         }
 
-        // 2. Fetch Data from Backend
-        async function fetchData() {
+        function logout() {
+            sessionStorage.removeItem('xis_admin_key');
+            clearInterval(refreshInterval);
+            location.reload();
+        }
+
+        // 3. Fetch Data (The Engine)
+        async function fetchData(isManual = false) {
             const btn = document.querySelector('.login-btn');
-            if(btn) btn.innerText = "Loading...";
+            const refreshBtnIcon = document.querySelector('.refresh-btn i');
+            
+            if(btn) btn.innerText = "Authenticating...";
+            if(isManual && refreshBtnIcon) refreshBtnIcon.classList.add('spin');
 
             try {
                 const response = await fetch('https://xisedge-api.netlify.app/.netlify/functions/nexichat', {
@@ -133,7 +170,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'getDashboardData', 
-                        sessionId: 'admin', // Dummy ID to pass checks
+                        sessionId: 'admin', 
                         adminSecret: secretKey 
                     })
                 });
@@ -141,48 +178,66 @@
                 if (response.status === 401) {
                     document.getElementById('loginError').style.display = 'block';
                     if(btn) btn.innerText = "Unlock Dashboard";
+                    // If auth fails, clear storage so we don't loop errors
+                    sessionStorage.removeItem('xis_admin_key');
                     return;
                 }
 
                 const data = await response.json();
                 
-                // Success: Show App
+                // --- SUCCESS ---
+                // 1. Save Key for Refresh persistence
+                sessionStorage.setItem('xis_admin_key', secretKey);
+                
+                // 2. Update UI
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('app').style.display = 'block';
                 
+                // 3. Update Timestamp
+                const now = new Date();
+                document.getElementById('lastUpdated').innerText = "Updated: " + now.toLocaleTimeString();
+
                 renderOrders(data.orders);
                 renderLeads(data.leads);
 
+                // 4. Start Polling (if not already started)
+                if (!refreshInterval) {
+                    refreshInterval = setInterval(() => fetchData(), 30000); // Auto-refresh every 30s
+                }
+
             } catch (err) {
-                alert("Failed to connect to backend.");
                 console.error(err);
+                if (isManual) alert("Failed to refresh data.");
             }
         }
 
-        // 3. Render Functions
+        // 4. Render Functions
         function renderOrders(orders) {
             const tbody = document.getElementById('ordersBody');
             tbody.innerHTML = '';
             
             if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No orders yet.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No orders found.</td></tr>';
                 return;
             }
 
             orders.forEach(order => {
-                const date = new Date(order.created_at).toLocaleDateString();
+                const date = new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
                 const row = `
                     <tr>
-                        <td>${date}</td>
+                        <td style="color:#64748b;">${date}</td>
                         <td>
                             <strong>${order.customer_name || 'Unknown'}</strong><br>
                             <span style="color:#64748b; font-size:12px">${order.customer_email}</span>
                         </td>
-                        <td>${order.customer_phone || '-'}</td> <td><span style="font-weight:600; color:#6c1eef;">${order.plan.toUpperCase()}</span></td>
-                        <td>${order.cycle}</td>
-                        <td>${order.amount}</td>
-                        <td>${order.domain}</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>${order.customer_phone || '-'}</td>
+                        <td>
+                            <span style="font-weight:700; color:#0f172a;">${order.plan.toUpperCase()}</span> 
+                            <span style="color:#64748b; font-size:12px">(${order.cycle})</span>
+                        </td>
+                        <td style="font-family:monospace; font-weight:600;">${order.amount}</td>
+                        <td><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></td>
+                        <td><span class="status-badge status-pending">Pending Payment</span></td>
                     </tr>
                 `;
                 tbody.innerHTML += row;
@@ -194,26 +249,26 @@
             tbody.innerHTML = '';
 
             if (!leads || leads.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads yet.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads captured yet.</td></tr>';
                 return;
             }
 
             leads.forEach(lead => {
-                const date = new Date(lead.created_at).toLocaleDateString();
+                const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 const row = `
                     <tr>
-                        <td>${date}</td>
-                        <td>${lead.name}</td>
+                        <td style="color:#64748b;">${date}</td>
+                        <td><strong>${lead.name}</strong></td>
                         <td>${lead.email}</td>
                         <td>${lead.phone}</td>
-                        <td style="font-family:monospace; color:#94a3b8;">${lead.session_id.slice(0, 8)}...</td>
+                        <td style="font-family:monospace; color:#94a3b8; font-size:12px;">${lead.session_id.slice(0, 8)}...</td>
                     </tr>
                 `;
                 tbody.innerHTML += row;
             });
         }
 
-        // 4. Tabs
+        // 5. Tabs Logic
         function switchTab(tabName) {
             document.querySelectorAll('.data-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
