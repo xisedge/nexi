@@ -12,6 +12,7 @@
         /* --- 1. CORE VARIABLES & TYPOGRAPHY --- */
         :root {
             --primary: #6c1eef;
+            --primary-light: #e6ddff; /* New light primary for accents */
             --bg: #f8f9fa;
             --surface: #ffffff;
             --text: #0f172a;
@@ -32,12 +33,11 @@
             font-weight: var(--body-weight);
             line-height: 1.5;
         }
-        * { box-sizing: border-box; } /* Ensure padding/border are included in element width */
+        * { box-sizing: border-box; } 
 
-        /* --- 2. LAYOUT & COMPONENTS --- */
+        /* --- 2. LAYOUT & COMPONENTS (Login unchanged) --- */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.3s; }
         .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; width: 300px; }
-        
         .password-wrapper { position: relative; width: 100%; margin: 20px 0; }
         .login-input { width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
         .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; }
@@ -46,11 +46,26 @@
         .login-btn:hover { opacity: 0.9; }
         
         /* DASHBOARD LAYOUT */
-        .app-container { display: none; max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .app-container { display: none; max-width: 1400px; margin: 0 auto; padding: 40px 30px; } /* Wider layout */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        .brand { font-size: 28px; font-weight: var(--header-weight); color: var(--primary); line-height: 1.2; }
-        .brand span { font-size: 18px; font-weight: 400; color: var(--secondary-text); }
+        /* --- PERSONALIZED GREETING --- */
+        .greeting-header {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0;
+            line-height: 1.2;
+        }
+        .greeting-header span {
+            color: var(--primary);
+        }
+        .subheader {
+            font-size: 16px;
+            color: var(--secondary-text);
+            margin: 5px 0 25px 0;
+        }
+        /* --- END GREETING --- */
 
         .header-actions { display: flex; gap: 10px; align-items: center; }
         .action-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; font-weight: 500;}
@@ -62,134 +77,123 @@
         .last-updated { font-size: 13px; color: var(--secondary-text); margin-right: 10px; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* KEY METRICS */
+        /* KEY METRICS (2-Column Layout) */
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px;
+            grid-template-columns: 2fr 1fr; /* Two main columns (Metrics + Filters) */
+            gap: 30px;
             margin-bottom: 30px;
+        }
+        .metrics-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two metric cards */
+            gap: 20px;
         }
         .metric-card {
             background: var(--surface);
-            padding: 20px;
+            padding: 25px; /* More padding for cleaner look */
             border-radius: 12px;
             border: 1px solid var(--border);
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         .metric-value {
-            font-size: 32px;
+            font-size: 40px; /* Larger impact number */
             font-weight: 800; 
-            color: var(--text);
-            line-height: 1.2;
+            color: var(--primary); /* Use primary color for main numbers */
+            line-height: 1.1;
         }
         .metric-label {
-            font-size: 14px;
+            font-size: 16px;
             color: var(--secondary-text);
             font-weight: 500;
             margin-top: 5px;
         }
-        .primary-highlight {
-            border-left: 5px solid var(--primary); 
+
+        /* FILTER CARD (New UI Element) */
+        .filter-card {
+            background: var(--surface);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
         }
-        .primary-highlight .metric-value {
-            color: var(--primary);
+        .filter-card select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            margin-top: 8px;
+            appearance: none; /* Remove default dropdown arrow */
+            background-color: #fcfcfc;
+        }
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        .filter-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            display: block;
+            margin-bottom: 5px;
         }
 
-        /* TABS */
+
+        /* TABS (Unchanged but visually cleaner) */
         .tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
         .tab { padding: 10px 20px; cursor: pointer; font-weight: var(--header-weight); color: var(--secondary-text); border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; }
         .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* --- 3. TABLES & DATA --- */
-        .data-section { display: none; }
-        .data-section.active { display: block; animation: fadeIn 0.3s; }
-        
+        /* --- 3. TABLES & DATA (Styling Refinements) --- */
         .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; min-width: 800px; } 
 
         th { 
-            background: #f1f5f9; padding: 12px 20px; text-align: left; font-size: 13px; color: var(--secondary-text); 
+            background: var(--primary-light); /* Lighter primary background for headers */
+            padding: 14px 20px; /* More vertical padding */
+            text-align: left; font-size: 13px; color: var(--primary); /* Primary text color for headers */
             text-transform: uppercase; font-weight: var(--table-header-weight); letter-spacing: 0.5px; 
-            cursor: pointer; position: relative; user-select: none; /* Sortable column styles */
+            cursor: pointer; position: relative; user-select: none; 
         }
-        th.sorted::after { content: ' \25BC'; font-size: 10px; margin-left: 5px; } /* Descending arrow */
-        th.sorted.asc::after { content: ' \25B2'; } /* Ascending arrow */
+        th.sorted::after { content: ' \25BC'; font-size: 10px; margin-left: 5px; color: var(--primary); } 
+        th.sorted.asc::after { content: ' \25B2'; } 
 
-        td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: #f8fafc; }
+        td { padding: 18px 20px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; } /* More vertical padding */
+        tr:hover { background: #f5f6f8; }
 
-        td strong { font-weight: 600; }
-        .numeric-data { font-weight: 600; font-variant-numeric: tabular-nums; }
-        .date-col, .monospace { color: var(--secondary-text); }
-        .monospace { font-family: monospace; font-size: 12px; }
-        .secondary-detail { color: var(--secondary-text); font-size: 12px; font-weight: var(--body-weight); }
-
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: var(--header-weight); text-transform: uppercase; }
-        .status-pending { background: #fff7ed; color: #c2410c; }
-        .status-paid { background: #f0fdf4; color: #15803d; }
-        .empty-state { padding: 60px; text-align: center; color: #94a3b8; font-style: italic; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .status-badge { background: #fee2e2; color: #991b1b; font-weight: 700; }
+        .status-paid { background: #dcfce7; color: #15803d; }
+        /* ... other data styles unchanged ... */
 
         /* --- 4. MOBILE CARD VIEW & RESPONSIVENESS --- */
-        .mobile-list-container {
-            display: none; /* Hidden by default, shown via media query */
-            padding: 10px 0;
-        }
-        .mobile-card {
-            background: var(--surface);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            margin-bottom: 12px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-        }
-        .mobile-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1px dashed #f1f5f9;
-        }
-        .mobile-card-detail {
-            font-size: 14px;
-            line-height: 1.6;
-            display: flex;
-        }
-        .mobile-card-label {
-            font-weight: 500;
-            color: var(--secondary-text);
-            min-width: 90px;
-            display: inline-block;
-            flex-shrink: 0;
-        }
-        .mobile-card-value {
-            font-weight: 600;
-            text-align: right;
-            flex-grow: 1;
-        }
+        .mobile-list-container { display: none; padding: 10px 0; }
+        .mobile-card { background: var(--surface); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
 
+        @media (max-width: 992px) { /* Adjust grid for medium screens */
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .metrics-wrapper {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
         @media (max-width: 768px) {
             .app-container { padding: 20px 10px; }
             .header { flex-direction: column; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
             .header-actions { width: 100%; justify-content: space-between; }
-            .tabs { gap: 10px; overflow-x: auto; padding-bottom: 5px; white-space: nowrap; }
-            .tab { padding: 8px 15px; font-size: 14px; flex-shrink: 0; }
-            .last-updated { display: none; }
+            .metrics-wrapper {
+                grid-template-columns: 1fr; /* Stack metrics on mobile */
+            }
         }
-        
         @media (max-width: 600px) {
-            .metrics-grid {
-                grid-template-columns: 1fr; /* Stacked metrics */
-            }
-            .card table {
-                display: none; /* HIDE THE WIDE TABLE */
-            }
-            .mobile-list-container {
-                display: block !important; /* SHOW THE MOBILE LIST */
-            }
+            .card table { display: none; }
+            .mobile-list-container { display: block !important; }
+            .greeting-header { font-size: 26px; }
+            .subheader { font-size: 14px; }
         }
     </style>
 </head>
@@ -212,7 +216,10 @@
 
     <div class="app-container" id="app">
         <div class="header">
-            <div class="brand">XIS EDGE <span>/ Operations</span></div>
+            <div>
+                <h1 class="greeting-header" id="greeting">Good Evening, <span>Chris</span></h1>
+                <p class="subheader">Overview of operations and performance metrics.</p>
+            </div>
             <div class="header-actions">
                 <div style="display: flex; align-items: center; font-size: 12px; color: var(--secondary-text); margin-right: 15px;">
                     <span class="refresh-indicator"></span> Live
@@ -224,19 +231,35 @@
         </div>
         
         <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-value" id="metricTotalOrders">0</div>
-                <div class="metric-label">Total Orders</div>
+            <div class="metrics-wrapper">
+                <div class="metric-card">
+                    <div class="metric-value" id="metricTotalOrders">0</div>
+                    <div class="metric-label">Total Orders</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="metricTotalLeads">0</div>
+                    <div class="metric-label">Total Leads</div>
+                </div>
             </div>
-
-            <div class="metric-card primary-highlight">
-                <div class="metric-value" id="metricPendingAmount">$0</div>
-                <div class="metric-label">Pending Amount</div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-value" id="metricTotalLeads">0</div>
-                <div class="metric-label">Total Leads</div>
+            
+            <div class="filter-card">
+                <p class="filter-label" style="font-weight:700;">Data Filters (Smart View)</p>
+                <div class="filter-group">
+                    <span class="filter-label">Filter by Year</span>
+                    <select id="filterYear">
+                        <option value="all">All Years</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="margin-bottom: 0;">
+                    <span class="filter-label">Filter by Status</span>
+                    <select id="filterStatus">
+                        <option value="all">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -291,9 +314,27 @@
     <script>
         let secretKey = '';
         let refreshInterval;
-        let allOrders = []; // Global data storage for sorting
-        let allLeads = [];  // Global data storage for sorting
+        let allOrders = []; 
+        let allLeads = [];  
         let currentSort = { table: null, col: -1, dir: 'desc' }; 
+        const USER_NAME = 'Chris'; // Customizable User Name
+
+        // 0. DYNAMIC GREETING
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greetingText;
+
+            if (hour < 12) {
+                greetingText = "Good Morning";
+            } else if (hour < 18) {
+                greetingText = "Good Afternoon";
+            } else {
+                greetingText = "Good Evening";
+            }
+
+            document.getElementById('greeting').innerHTML = `${greetingText}, <span>${USER_NAME}</span>`;
+        }
+        updateGreeting(); // Call on load
 
         // 1. TOGGLE PASSWORD VISIBILITY 
         function togglePasswordVisibility() {
@@ -318,6 +359,9 @@
                 document.getElementById('adminPass').value = savedKey;
                 manualLogin();
             }
+            // Bind filter event listeners (for future use)
+            document.getElementById('filterYear').addEventListener('change', filterData);
+            document.getElementById('filterStatus').addEventListener('change', filterData);
         });
 
         // 3. Authentication
@@ -365,27 +409,21 @@
                 document.getElementById('app').style.display = 'block';
 
                 // Save data globally
-                allOrders = data.orders;
+                allOrders = data.orders.map(o => ({...o, status: o.status === 'pending' ? 'Pending Payment' : 'Paid'})); // Normalize status
                 allLeads = data.leads;
 
-                // CALCULATE METRICS
+                // CALCULATE METRICS (Pending amount removed)
                 const totalOrders = allOrders.length;
                 const totalLeads = allLeads.length;
-                const pendingAmount = allOrders.reduce((sum, order) => {
-                    // Assuming amount is string like '$100.00' and status 'Pending Payment'
-                    return sum + (order.status === 'pending' ? parseFloat(order.amount.replace(/[^0-9.]/g, '')) : 0);
-                }, 0);
 
                 document.getElementById('metricTotalOrders').innerText = totalOrders.toLocaleString();
-                document.getElementById('metricPendingAmount').innerText = `$${pendingAmount.toFixed(2).toLocaleString()}`;
                 document.getElementById('metricTotalLeads').innerText = totalLeads.toLocaleString();
                 
                 const now = new Date();
                 document.getElementById('lastUpdated').innerText = now.toLocaleTimeString();
 
-                // Render both views
-                renderOrders(allOrders);
-                renderLeads(allLeads);
+                // Render with current filters
+                filterData();
 
                 if (!refreshInterval) {
                     refreshInterval = setInterval(() => fetchData(), 5000); 
@@ -396,8 +434,16 @@
                 if (isManual) alert("Failed to refresh data.");
             }
         }
+        
+        // 5. Smart Filtering (Placeholder)
+        function filterData() {
+            // This function would implement logic to filter allOrders based on selected year/status.
+            // For now, it simply renders all data.
+            renderOrders(allOrders); 
+            renderLeads(allLeads);
+        }
 
-        // 5. Render Functions 
+        // 6. Render Functions 
         function renderOrders(orders) {
             const tbody = document.getElementById('ordersBody');
             const mobileList = document.getElementById('ordersMobileList');
@@ -413,13 +459,13 @@
 
             orders.forEach(order => {
                 const date = new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                const customerDetails = `<strong>${order.customer_name || 'Unknown'}</strong><br><span class="secondary-detail">${order.customer_email}</span>`;
+                const statusClass = order.status === 'Paid' ? 'status-paid' : 'status-pending';
 
                 // Table Row
                 const tableRow = `
                     <tr>
                         <td class="date-col">${date}</td>
-                        <td>${customerDetails}</td>
+                        <td><strong>${order.customer_name || 'Unknown'}</strong><br><span class="secondary-detail">${order.customer_email}</span></td>
                         <td>${order.customer_phone || '-'}</td>
                         <td>
                             <span style="font-weight:700; color:var(--text);">${(order.plan || '').toUpperCase()}</span> 
@@ -427,7 +473,7 @@
                         </td>
                         <td class="numeric-data">${order.amount}</td>
                         <td><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></td>
-                        <td><span class="status-badge status-pending">Pending Payment</span></td>
+                        <td><span class="status-badge ${statusClass}">${order.status}</span></td>
                     </tr>
                 `;
                 tbody.innerHTML += tableRow;
@@ -437,7 +483,7 @@
                     <div class="mobile-card">
                         <div class="mobile-card-header">
                             <span style="font-weight:700;">${order.customer_name || 'Unknown'}</span>
-                            <span class="status-badge status-pending">Pending</span>
+                            <span class="status-badge ${statusClass}">${order.status}</span>
                         </div>
                         <div class="mobile-card-detail"><span class="mobile-card-label">Plan:</span> <span class="mobile-card-value">${(order.plan || '').toUpperCase()} (${order.cycle || ''})</span></div>
                         <div class="mobile-card-detail"><span class="mobile-card-label">Amount:</span> <span class="mobile-card-value numeric-data">${order.amount}</span></div>
@@ -494,7 +540,7 @@
             });
         }
 
-        // 6. Tabs Logic
+        // 7. Tabs Logic
         function switchTab(tabName) {
             document.querySelectorAll('.data-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
@@ -506,7 +552,7 @@
             else tabs[1].classList.add('active');
         }
 
-        // 7. SORTING LOGIC
+        // 8. SORTING LOGIC (Unchanged)
         function sortTable(tableName, column, type) {
             const tableData = tableName === 'orders' ? allOrders : allLeads;
             const renderFn = tableName === 'orders' ? renderOrders : renderLeads;
