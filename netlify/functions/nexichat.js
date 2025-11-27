@@ -96,6 +96,23 @@ exports.handler = async (event) => {
             };
         }
 
+        // --- NEW: SAVE CONSULTATION (Design/Brand) ---
+        if (action === 'saveConsultation') {
+            const { error } = await supabase.from('consultations').insert([{
+                session_id: sessionId,
+                service_type: userDetails.serviceType,
+                business_name: userDetails.businessName,
+                budget: userDetails.budget,
+                project_details: userDetails.details,
+                reference_link: userDetails.refLink,
+                customer_name: userDetails.name,
+                customer_email: userDetails.email,
+                customer_phone: userDetails.phone
+            }]);
+            if (error) console.error('Consultation Error:', error);
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+        }
+
         // ============================================================
         // ACTION B: LOAD HISTORY (Persistent Chat)
         // ============================================================
