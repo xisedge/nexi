@@ -45,7 +45,7 @@ exports.handler = async (event) => {
     try {
         const body = JSON.parse(event.body);
         // Added 'action', 'userDetails', and 'userName' to the destructured object
-        const { message, sessionId, action, userDetails, userName } = body;
+        const { message, sessionId, action, userDetails, userName, loadHistory } = body;
 
         if (!sessionId) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing Session ID' }) };
 
@@ -72,12 +72,14 @@ exports.handler = async (event) => {
         // ============================================================
         // ACTION B: LOAD HISTORY (Persistent Chat)
         // ============================================================
-        if (action === 'loadHistory') {
-            const { data: fullHistory } = await supabase
+        if (loadHistory || action === 'loadHistory') {
+            const { data: fullHistory, error } = await supabase
                 .from('chat_history')
-                .select('role, content')
+                .select('role, content, created_at')
                 .eq('session_id', sessionId)
-                .order('created_at', { ascending: true });
+                .order('created_at', { ascending: true }); // Oldest first for display
+
+            if (error) throw error;
 
             return {
                 statusCode: 200,
