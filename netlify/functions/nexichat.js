@@ -69,16 +69,25 @@ exports.handler = async (event) => {
             };
         }
 
-        // --- ACTION: SAVE ORDER ---
+        // ============================================================
+        // ACTION: SAVE ORDER (UPDATED FOR STRUCTURED DATA)
+        // ============================================================
         if (action === 'saveOrder') {
             const { error } = await supabase.from('orders').insert([{
                 session_id: sessionId,
                 plan: userDetails.plan,
+                cycle: userDetails.cycle,        // New Column
+                amount: userDetails.price,       // New Column (Mapped from frontend 'price')
                 domain: userDetails.domain,
-                details: userDetails.details
+                customer_name: userDetails.name, // New Column
+                customer_email: userDetails.email, // New Column
+                customer_phone: userDetails.phone  // New Column
             }]);
             
-            if (error) console.error('Order Save Error:', error);
+            if (error) {
+                console.error('Order Save Error:', error);
+                // Optional: Return error to frontend if needed
+            }
             
             return {
                 statusCode: 200,
@@ -93,7 +102,7 @@ exports.handler = async (event) => {
         if (loadHistory || action === 'loadHistory') {
             const { data: fullHistory, error } = await supabase
                 .from('chat_history')
-                .select('role, content, created_at')
+                .select('role, content')
                 .eq('session_id', sessionId)
                 .order('created_at', { ascending: true }); // Oldest first for display
 
