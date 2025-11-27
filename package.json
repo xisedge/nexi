@@ -1,7 +1,7 @@
 {
   "name": "nexi-chat-backend",
-  "version": "1.0.0",
-  "description": "Backend for NEXI Chatbot using Netlify Functions, Supabase, and Gemini.",
+  "version": "2.1.0",
+  "description": "Backend for NEXI Chatbot using Netlify Functions, Supabase, and Gemini, with Email Notifications.",
   "main": "netlify/functions/chat.js",
   "type": "commonjs",
   "scripts": {
@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@google/genai": "^0.15.0",
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.39.0",
+    "resend": "^2.0.0"
   }
 }
