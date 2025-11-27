@@ -105,6 +105,8 @@
         .status-pending { background: #fff7ed; color: #c2410c; }
         .status-paid { background: #f0fdf4; color: #15803d; }
         .status-processing { background: #eff6ff; color: #1e40af; } 
+        .status-new-lead { background: #e6ddff; color: var(--primary); }
+
 
         .secondary-detail { font-size: 13px; color: var(--secondary-text); display: block; }
         .monospace { font-family: monospace; font-size: 12px; }
@@ -184,7 +186,6 @@
                     <div class="metric-value" id="metricTotalLeads">0</div>
                     <div class="metric-label">Total Leads</div>
                 </div>
-                 <!-- NEW METRIC CARD -->
                 <div class="metric-card">
                     <div class="metric-value" id="metricTotalConsults">0</div>
                     <div class="metric-label">Total Consults</div>
@@ -438,23 +439,26 @@
             // --- 3. Filter Consultations (Similar to Leads) ---
             let filteredConsults = allConsults.filter(consult => {
                 const consultYear = new Date(consult.created_at).getFullYear().toString();
-                return filterYear === 'all' || consultYear === filterYear;
+                // Consultations are always 'pending' status for simplicity
+                const isStatusMatch = filterStatus === 'all' || filterStatus === 'pending'; 
+                const isYearMatch = filterYear === 'all' || consultYear === filterYear;
+                return isYearMatch && isStatusMatch;
             });
             
             renderOrders(filteredOrders); 
             renderLeads(filteredLeads);
-            renderConsults(filteredConsults); // NEW Render Call
+            renderConsults(filteredConsults); // Render filtered consults
 
             if (currentSort.table === 'orders') {
                 sortTable('orders', currentSort.col, currentSort.type, filteredOrders);
             } else if (currentSort.table === 'leads') {
                 sortTable('leads', currentSort.col, currentSort.type, filteredLeads);
-            } else if (currentSort.table === 'consults') { // NEW Sort Call
+            } else if (currentSort.table === 'consults') { 
                  sortTable('consults', currentSort.col, currentSort.type, filteredConsults);
             }
         }
 
-        // 7. Render Orders (Unchanged)
+        // 7. Render Orders
         function renderOrders(orders) {
             const tbody = document.getElementById('ordersBody');
             const mobileList = document.getElementById('ordersMobileList');
@@ -495,7 +499,7 @@
             });
         }
 
-        // 8. Render Leads (Unchanged)
+        // 8. Render Leads
         function renderLeads(leads) {
             const tbody = document.getElementById('leadsBody');
             const mobileList = document.getElementById('leadsMobileList');
@@ -526,7 +530,7 @@
             });
         }
         
-        // 9. NEW: Render Consultations
+        // 9. Render Consultations (NEW)
         function renderConsults(consults) {
             const tbody = document.getElementById('consultsBody');
             const mobileList = document.getElementById('consultsMobileList');
@@ -542,12 +546,12 @@
             consults.forEach(consult => {
                 const date = new Date(consult.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
                 const time = new Date(consult.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                const statusDetails = getOrderStatusDetails(consult.status || 'new_lead');
+                const statusDetails = getOrderStatusDetails(consult.status || 'new_lead'); // Use 'new_lead' status
 
                 const row = `
                     <tr>
                         <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
-                        <td><span class="status-badge ${statusDetails.class}">${consult.service_type || '-'}</span></td>
+                        <td><span class="status-badge status-new-lead">${consult.service_type || '-'}</span></td>
                         <td>
                             <strong>${consult.customer_name || '-'}</strong><br>
                             <span class="secondary-detail">${consult.customer_email || '-'}</span>
@@ -555,7 +559,7 @@
                         <td>${consult.business_name || '-'}</td>
                         <td>${consult.budget || '-'}</td>
                         <td style="max-width: 250px;">
-                           ${consult.project_details.substring(0, 100)}...<br>
+                           ${(consult.project_details || '').substring(0, 100)}...<br>
                            ${consult.reference_link && consult.reference_link.toLowerCase().startsWith('http') ? 
                              `<a href="${consult.reference_link}" target="_blank" class="secondary-detail">View Link</a>` : '-'}
                         </td>
@@ -563,6 +567,8 @@
                     </tr>
                 `;
                 tbody.innerHTML += row;
+                
+                // Mobile Card (Placeholder for implementation)
             });
         }
 
