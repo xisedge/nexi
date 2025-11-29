@@ -1,521 +1,695 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XIS EDGE - Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">    
-    
-    <style>
-        /* --- 1. CORE VARIABLES & TYPOGRAPHY --- */
-        :root {
-            --primary: #6c1eef;
-            --primary-light: #e6ddff;
-            --bg: #fff;
-            --surface: #ffffff;
-            --text: #111;
-            --border: #eee;
-            --secondary-text: #555; 
-            --header-weight: 600; 
-            --table-header-weight: 600; 
-            --body-weight: 400; 
-        }
-        
-        body { 
-            font-family: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 0; 
-            font-size: 16px; 
-            font-weight: var(--body-weight);
-            line-height: 1.5;
-        }
-        * { box-sizing: border-box; } 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XIS EDGE - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">    
+    
+    <style>
+        /* --- 1. CORE VARIABLES & TYPOGRAPHY --- */
+        :root {
+            --primary: #6c1eef;
+            --primary-light: #e6ddff;
+            --bg: #f8fafc; /* Slightly off-white background */
+            --surface: #ffffff;
+            --text: #111;
+            --border: #eee;
+            --secondary-text: #555; 
+            --header-weight: 600; 
+            --table-header-weight: 600; 
+            --body-weight: 400; 
+        }
+        
+        body { 
+            font-family: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 0; 
+            font-size: 16px; 
+            font-weight: var(--body-weight);
+            line-height: 1.5;
+        }
+        * { box-sizing: border-box; } 
 
-        /* LOGIN OVERLAY */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.3s; }
-        .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; width: 300px; }
-        .password-wrapper { position: relative; width: 100%; margin: 20px 0; }
-        .login-input { width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
-        .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; }
-        .toggle-password:hover { color: var(--primary); }
-        .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: var(--header-weight); width: 100%; transition: opacity 0.2s; }
-        .login-btn:hover { opacity: 0.9; }
-        
-        /* DASHBOARD LAYOUT */
-        .app-container { display: none; max-width: 1400px; margin: 0 auto; padding: 40px 30px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        /* GREETING STYLES */
-        .greeting-header { font-size: 32px; font-weight: 700; color: var(--text); margin: 0; line-height: 1.2; }
-        .greeting-header span { color: var(--primary); }
-        .subheader { font-size: 16px; color: var(--secondary-text); margin: 5px 0 25px 0; }
+        /* LOGIN OVERLAY */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.3s; }
+        .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; width: 300px; }
+        .password-wrapper { position: relative; width: 100%; margin: 20px 0; }
+        .login-input { width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
+        .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; }
+        .toggle-password:hover { color: var(--primary); }
+        .login-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: var(--header-weight); width: 100%; transition: opacity 0.2s; }
+        .login-btn:hover { opacity: 0.9; }
+        
+        /* DASHBOARD LAYOUT */
+        .app-container { display: none; max-width: 1400px; margin: 0 auto; padding: 40px 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* GREETING STYLES */
+        .greeting-header { font-size: 32px; font-weight: 700; color: var(--text); margin: 0; line-height: 1.2; }
+        .greeting-header span { color: var(--primary); }
+        .subheader { font-size: 16px; color: var(--secondary-text); margin: 5px 0 25px 0; }
 
-        .header-actions { display: flex; gap: 10px; align-items: center; }
-        .action-btn { font-family: inherit; background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; font-weight: 500;}
-        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
-        .logout-btn { background: #fee2e2; color: #991b1b; border: none; }
-        .logout-btn:hover { background: #fecaca; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .action-btn { font-family: inherit; background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 14px; transition: all 0.2s; font-weight: 500;}
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .logout-btn { background: #fee2e2; color: #991b1b; border: none; }
+        .logout-btn:hover { background: #fecaca; }
 
-        .refresh-indicator { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; margin-right: 5px; }
-        .last-updated { font-size: 13px; color: var(--secondary-text); margin-right: 10px; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .refresh-indicator { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; margin-right: 5px; }
+        .last-updated { font-size: 13px; color: var(--secondary-text); margin-right: 10px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* METRICS & FILTERS */
-        .metrics-grid { 
-            display: grid; 
-            grid-template-columns: 2fr 1fr; /* Defines the two-column structure for metrics and filters */
-            gap: 30px; 
-            margin-bottom: 30px; 
-        }
-        .metrics-wrapper { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .metric-card { background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .metric-value { font-size: 40px; font-weight: 800; color: var(--primary); line-height: 1.1; }
-        .metric-label { font-size: 16px; color: var(--secondary-text); font-weight: 500; margin-top: 5px; }
-        .filter-card { background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-around; }
-        .filter-card select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; margin-top: 8px; appearance: none; background-color: #fcfcfc; }
-        .filter-group { margin-bottom: 15px; }
-        .filter-label { font-size: 14px; font-weight: 600; color: var(--text); display: block; margin-bottom: 5px; }
+        /* METRICS & FILTERS */
+        .metrics-grid { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr; /* Defines the two-column structure for metrics and filters */
+            gap: 30px; 
+            margin-bottom: 30px; 
+        }
+        /* UPDATED: metrics-wrapper now supports 4 columns for 4 metrics */
+        .metrics-wrapper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; } 
+        .metric-card { background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .metric-value { font-size: 40px; font-weight: 800; color: var(--primary); line-height: 1.1; }
+        .metric-label { font-size: 16px; color: var(--secondary-text); font-weight: 500; margin-top: 5px; }
+        .filter-card { background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-around; }
+        .filter-card select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; margin-top: 8px; appearance: none; background-color: #fcfcfc; }
+        .filter-group { margin-bottom: 15px; }
+        .filter-label { font-size: 14px; font-weight: 600; color: var(--text); display: block; margin-bottom: 5px; }
 
 
-        /* TABS */
-        .tabs { 
-            display: flex; 
-            gap: 20px; 
-            margin-bottom: 20px; 
-            border-bottom: 1px solid var(--border); 
-            /* FIX: Span across both columns */
-            grid-column: 1 / 3;
-        }
-        .tab { padding: 10px 20px; cursor: pointer; font-weight: var(--header-weight); color: var(--secondary-text); border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; }
-        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        /* TABS */
+        .tabs { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+            border-bottom: 1px solid var(--border); 
+            grid-column: 1 / 3;
+        }
+        .tab { padding: 10px 20px; cursor: pointer; font-weight: var(--header-weight); color: var(--secondary-text); border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; }
+        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* TABLES */
-        .data-section { 
-            display: none; 
-            /* FIX: Span across both columns */
-            grid-column: 1 / 3;
-        }
-        .data-section.active { display: block; animation: fadeIn 0.3s; }
-        
-        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; } 
-        th { background: var(--primary-light); padding: 14px 20px; text-align: left; font-size: 13px; color: var(--primary); text-transform: uppercase; font-weight: var(--table-header-weight); letter-spacing: 0.5px; cursor: pointer; position: relative; user-select: none; }
-        th.sorted::after { content: ' \25BC'; font-size: 10px; margin-left: 5px; color: var(--primary); } 
-        th.sorted.asc::after { content: ' \25B2'; } 
+        /* TABLES */
+        .data-section { 
+            display: none; 
+            grid-column: 1 / 3;
+        }
+        .data-section.active { display: block; animation: fadeIn 0.3s; }
+        
+        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; } 
+        th { background: var(--primary-light); padding: 14px 20px; text-align: left; font-size: 13px; color: var(--primary); text-transform: uppercase; font-weight: var(--table-header-weight); letter-spacing: 0.5px; cursor: pointer; position: relative; user-select: none; }
+        th.sorted::after { content: ' \25BC'; font-size: 10px; margin-left: 5px; color: var(--primary); } 
+        th.sorted.asc::after { content: ' \25B2'; } 
 
-        td { padding: 18px 20px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; }
-        tr:hover { background: #f5f6f8; }
-        tr:last-child td { border-bottom: none; }
+        td { padding: 18px 20px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; }
+        tr:hover { background: #f5f6f8; }
+        tr:last-child td { border-bottom: none; }
 
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .status-pending { background: #fff7ed; color: #c2410c; }
-        .status-paid { background: #f0fdf4; color: #15803d; }
-        .status-processing { background: #eff6ff; color: #1e40af; } 
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .status-pending { background: #fff7ed; color: #c2410c; }
+        .status-paid { background: #f0fdf4; color: #15803d; }
+        .status-processing { background: #eff6ff; color: #1e40af; } 
 
-        .secondary-detail { font-size: 13px; color: #64748b; display: block; }
-        .monospace { font-family: monospace; font-size: 12px; }
+        .secondary-detail { font-size: 13px; color: #64748b; display: block; }
+        .monospace { font-family: monospace; font-size: 12px; }
 
-        .empty-state { padding: 60px; text-align: center; color: #94a3b8; font-style: italic; }
+        .empty-state { padding: 60px; text-align: center; color: #94a3b8; font-style: italic; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* MOBILE RESPONSIVENESS */
-        .mobile-list-container { display: none; padding: 10px 0; }
-        .mobile-card { background: var(--surface); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
-        
-        @media (max-width: 992px) { 
-            .metrics-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            /* Reset full span on smaller screens where grid is 1 column anyway */
-            .tabs, .data-section {
-                grid-column: auto;
-            }
-        }
-        @media (max-width: 768px) {
-            .app-container { padding: 20px 10px; }
-            .header { flex-direction: column; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
-            .header-actions { width: 100%; justify-content: space-between; }
-            .metrics-wrapper {
-                grid-template-columns: 1fr; /* Stack metrics on mobile */
-            }
-        }
-        @media (max-width: 600px) {
-            .card table { display: none; }
-            .mobile-list-container { display: block !important; }
-            .greeting-header { font-size: 26px; }
-            .subheader { font-size: 14px; }
-        }
-    </style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* MOBILE RESPONSIVENESS */
+        .mobile-list-container { display: none; padding: 10px 0; }
+        .mobile-card { background: var(--surface); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+        .mobile-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .mobile-card-detail { display: flex; justify-content: space-between; font-size: 14px; border-top: 1px solid #f1f5f9; padding-top: 5px; margin-top: 5px; }
+        .mobile-card-label { font-weight: 500; color: var(--secondary-text); }
+        
+        @media (max-width: 992px) { 
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .metrics-wrapper { grid-template-columns: repeat(2, 1fr); }
+            /* Reset full span on smaller screens where grid is 1 column anyway */
+            .tabs, .data-section {
+                grid-column: auto;
+            }
+        }
+        @media (max-width: 768px) {
+            .app-container { padding: 20px 10px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .metrics-wrapper {
+                grid-template-columns: 1fr; /* Stack metrics on mobile */
+            }
+        }
+        @media (max-width: 600px) {
+            .card table { display: none; }
+            .mobile-list-container { display: block !important; }
+            .greeting-header { font-size: 26px; }
+            .subheader { font-size: 14px; }
+        }
+    </style>
 </head>
 <body>
 
-    <div id="loginOverlay">
-        <div class="login-box">
-            <h2 style="margin-top:0; color: var(--primary);">XIS Admin</h2>
-            <p style="color:var(--secondary-text); font-size: 14px; margin-bottom: 20px;">Enter your master key to access.</p>
-            
-            <div class="password-wrapper">
-                <input type="password" id="adminPass" class="login-input" placeholder="Secret Key">
-                <i class="bi bi-eye-slash toggle-password" id="toggleBtn" onclick="togglePasswordVisibility()"></i>
-            </div>
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2 style="margin-top:0; color: var(--primary);">NEXI Admin</h2>
+            <p style="color:var(--secondary-text); font-size: 14px; margin-bottom: 20px;">Enter your master key to access.</p>
+            
+            <div class="password-wrapper">
+                <input type="password" id="adminPass" class="login-input" placeholder="Secret Key">
+                <i class="bi bi-eye-slash toggle-password" id="toggleBtn" onclick="togglePasswordVisibility()"></i>
+            </div>
 
-            <button class="login-btn" onclick="manualLogin()">Unlock Dashboard</button>
-            <p id="loginError" style="color: #ef4444; font-size: 13px; margin-top: 15px; display: none;">Invalid Password</p>
-        </div>
-    </div>
+            <button class="login-btn" onclick="manualLogin()">Unlock Dashboard</button>
+            <p id="loginError" style="color: #ef4444; font-size: 13px; margin-top: 15px; display: none;">Invalid Password</p>
+        </div>
+    </div>
 
-    <div class="app-container" id="app">
-        <div class="header">
-            <div>
-                <h1 class="greeting-header" id="greeting">Good Evening, <span>Chris</span></h1>
-                <p class="subheader">Overview of operations and performance metrics.</p>
-            </div>
-            <div class="header-actions">
-                <div style="display: flex; align-items: center; font-size: 12px; color: var(--secondary-text); margin-right: 15px;">
-                    <span class="refresh-indicator"></span> Live
-                </div>
-                <span id="lastUpdated" class="last-updated"></span>
-                <button class="action-btn" onclick="fetchData(true)"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
-                <button class="action-btn logout-btn" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
-            </div>
-        </div>
-        
-        <div class="metrics-grid">
-            <div class="metrics-wrapper">
-                <div class="metric-card">
-                    <div class="metric-value" id="metricTotalOrders">0</div>
-                    <div class="metric-label">Total Orders</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value" id="metricTotalLeads">0</div>
-                    <div class="metric-label">Total Leads</div>
-                </div>
-            </div>
-            
-            <div class="filter-card">
-                <p class="filter-label" style="font-weight:700;">Data Filters (Smart View)</p>
-                <div class="filter-group">
-                    <span class="filter-label">Filter by Year</span>
-                    <select id="filterYear">
-                        <option value="all">All Years</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                    </select>
-                </div>
-                <div class="filter-group" style="margin-bottom: 0;">
-                    <span class="filter-label">Filter by Status</span>
-                    <select id="filterStatus">
-                        <option value="all">All Statuses</option>
-                        <option value="paid">Paid</option>
-                        <option value="pending">Pending/Processing</option>
-                    </select>
-                </div>
-            </div>
+    <div class="app-container" id="app">
+        <div class="header">
+            <div>
+                <h1 class="greeting-header" id="greeting">Good Evening, <span>Chris</span></h1>
+                <p class="subheader">Overview of operations and performance metrics.</p>
+            </div>
+            <div class="header-actions">
+                <div style="display: flex; align-items: center; font-size: 12px; color: var(--secondary-text); margin-right: 15px;">
+                    <span class="refresh-indicator"></span> Live
+                </div>
+                <span id="lastUpdated" class="last-updated"></span>
+                <button class="action-btn" onclick="fetchData(true)"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                <button class="action-btn logout-btn" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metrics-wrapper">
+                <div class="metric-card">
+                    <div class="metric-value" id="metricTotalOrders">0</div>
+                    <div class="metric-label">Total Orders</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="metricTotalLeads">0</div>
+                    <div class="metric-label">Total Leads</div>
+                </div>
+                                <div class="metric-card">
+                    <div class="metric-value" id="metricTotalTickets">0</div>
+                    <div class="metric-label">Support Tickets</div>
+                </div>
+                                <div class="metric-card">
+                    <div class="metric-value" id="metricTotalConsultations">0</div>
+                    <div class="metric-label">Consultation Requests</div>
+                </div>
+            </div>
+            
+            <div class="filter-card">
+                <p class="filter-label" style="font-weight:700;">Data Filters (Smart View)</p>
+                <div class="filter-group">
+                    <span class="filter-label">Filter by Year</span>
+                    <select id="filterYear">
+                        <option value="all">All Years</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="margin-bottom: 0;">
+                    <span class="filter-label">Filter by Status</span>
+                    <select id="filterStatus">
+                        <option value="all">All Statuses</option>
+                        <option value="paid">Paid</option>
+                        <option value="pending">Pending/Processing</option>
+                    </select>
+                </div>
+            </div>
 
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('orders')">Orders</div>
-                <div class="tab" onclick="switchTab('leads')">Leads</div>
-            </div>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('orders')">Orders</div>
+                <div class="tab" onclick="switchTab('leads')">Leads</div>
+                                <div class="tab" onclick="switchTab('tickets')">Tickets</div>
+                <div class="tab" onclick="switchTab('consultations')">Consultations</div>
+            </div>
 
-            <div id="ordersSection" class="data-section active">
-                <div class="mobile-list-container" id="ordersMobileList"></div>
-                <div class="card">
-                    <table id="ordersTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('orders', 0, 'date')">Date & Time</th> 
-                                <th onclick="sortTable('orders', 1, 'string')">Customer</th>
-                                <th onclick="sortTable('orders', 2, 'string')">Phone</th>
-                                <th onclick="sortTable('orders', 3, 'string')">Plan Details</th>
-                                <th onclick="sortTable('orders', 4, 'numeric')">Amount</th>
-                                <th onclick="sortTable('orders', 5, 'string')">Domain</th>
-                                <th onclick="sortTable('orders', 6, 'string')">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersBody">
-                            <tr><td colspan="7" class="empty-state">Loading orders...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <div id="ordersSection" class="data-section active">
+                <div class="mobile-list-container" id="ordersMobileList"></div>
+                <div class="card">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('orders', 0, 'date')">Date & Time</th> 
+                                <th onclick="sortTable('orders', 1, 'string')">Customer</th>
+                                <th onclick="sortTable('orders', 2, 'string')">Phone</th>
+                                <th onclick="sortTable('orders', 3, 'string')">Plan Details</th>
+                                <th onclick="sortTable('orders', 4, 'numeric')">Amount</th>
+                                <th onclick="sortTable('orders', 5, 'string')">Domain</th>
+                                <th onclick="sortTable('orders', 6, 'string')">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <tr><td colspan="7" class="empty-state">Loading orders...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <div id="leadsSection" class="data-section">
-                <div class="mobile-list-container" id="leadsMobileList"></div>
-                <div class="card">
-                    <table id="leadsTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('leads', 0, 'date')">Date & Time</th> 
-                                <th onclick="sortTable('leads', 1, 'string')">Name</th>
-                                <th onclick="sortTable('leads', 2, 'string')">Email</th>
-                                <th onclick="sortTable('leads', 3, 'string')">Phone</th>
-                                <th onclick="sortTable('leads', 4, 'string')">Session ID</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leadsBody">
-                             <tr><td colspan="5" class="empty-state">Loading leads...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+            <div id="leadsSection" class="data-section">
+                <div class="mobile-list-container" id="leadsMobileList"></div>
+                <div class="card">
+                    <table id="leadsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('leads', 0, 'date')">Date & Time</th> 
+                                <th onclick="sortTable('leads', 1, 'string')">Name</th>
+                                <th onclick="sortTable('leads', 2, 'string')">Email</th>
+                                <th onclick="sortTable('leads', 3, 'string')">Phone</th>
+                                <th onclick="sortTable('leads', 4, 'string')">Session ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leadsBody">
+                             <tr><td colspan="5" class="empty-state">Loading leads...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-    <script>
-        let secretKey = '';
-        let refreshInterval;
-        let allOrders = []; 
-        let allLeads = [];  
-        let currentSort = { table: null, col: -1, dir: 'desc', type: 'date' }; 
-        const USER_NAME = 'Chris'; 
+                        <div id="ticketsSection" class="data-section">
+                <div class="mobile-list-container" id="ticketsMobileList"></div>
+                <div class="card">
+                    <table id="ticketsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('tickets', 0, 'date')">Date & Time</th> 
+                                <th onclick="sortTable('tickets', 1, 'string')">Customer</th>
+                                <th onclick="sortTable('tickets', 2, 'string')">Category</th>
+                                <th onclick="sortTable('tickets', 3, 'string')">Details</th>
+                                <th onclick="sortTable('tickets', 4, 'string')">Phone</th>
+                                <th onclick="sortTable('tickets', 5, 'string')">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketsBody">
+                            <tr><td colspan="6" class="empty-state">Loading support tickets...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        // 0. DYNAMIC GREETING
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            let greetingText;
+                        <div id="consultationsSection" class="data-section">
+                <div class="mobile-list-container" id="consultationsMobileList"></div>
+                <div class="card">
+                    <table id="consultationsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('consultations', 0, 'date')">Date & Time</th> 
+                                <th onclick="sortTable('consultations', 1, 'string')">Customer</th>
+                                <th onclick="sortTable('consultations', 2, 'string')">Service</th>
+                                <th onclick="sortTable('consultations', 3, 'string')">Details & Budget</th>
+                                <th onclick="sortTable('consultations', 4, 'string')">Ref Link</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consultationsBody">
+                            <tr><td colspan="5" class="empty-state">Loading consultation requests...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            if (hour < 12) {
-                greetingText = "Good Morning";
-            } else if (hour < 18) {
-                greetingText = "Good Afternoon";
-            } else {
-                greetingText = "Good Evening";
-            }
+    <script>
+        let secretKey = '';
+        let refreshInterval;
+        let allOrders = []; 
+        let allLeads = [];  
+        let allTickets = []; // NEW
+        let allConsultations = []; // NEW
+        let currentSort = { table: null, col: -1, dir: 'desc', type: 'date' }; 
+        const USER_NAME = 'Chris'; 
+        const API_ENDPOINT = 'https://xisedge-api.netlify.app/.netlify/functions/nexichat'; // Centralized endpoint
 
-            document.getElementById('greeting').innerHTML = `${greetingText}, <span>${USER_NAME}</span>`;
-        }
-        updateGreeting();
+        // 0. DYNAMIC GREETING
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greetingText;
 
-        // 1. Password Visibility Toggle
-        function togglePasswordVisibility() {
-            const input = document.getElementById('adminPass');
-            const icon = document.getElementById('toggleBtn');
-            
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
-            } else {
-                input.type = "password";
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            }
-        }
+            if (hour < 12) {
+                greetingText = "Good Morning";
+            } else if (hour < 18) {
+                greetingText = "Good Afternoon";
+            } else {
+                greetingText = "Good Evening";
+            }
 
-        // 2. Initial Setup and Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedKey = sessionStorage.getItem('xis_admin_key');
-            if (savedKey) {
-                document.getElementById('adminPass').value = savedKey;
-                manualLogin();
-            }
+            document.getElementById('greeting').innerHTML = `${greetingText}, <span>${USER_NAME}</span>`;
+        }
+        updateGreeting();
 
-            // Attach filter events
-            document.getElementById('filterYear').addEventListener('change', filterData);
-            document.getElementById('filterStatus').addEventListener('change', filterData);
-        });
+        // 1. Password Visibility Toggle
+        function togglePasswordVisibility() {
+            const input = document.getElementById('adminPass');
+            const icon = document.getElementById('toggleBtn');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            } else {
+                input.type = "password";
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            }
+        }
 
-        // 3. Login/Logout Functions
-        function manualLogin() {
-            const input = document.getElementById('adminPass').value;
-            if (!input) return;
-            secretKey = input;
-            fetchData();
-        }
+        // 2. Initial Setup and Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedKey = sessionStorage.getItem('xis_admin_key');
+            if (savedKey) {
+                document.getElementById('adminPass').value = savedKey;
+                manualLogin();
+            }
 
-        function logout() {
-            sessionStorage.removeItem('xis_admin_key');
-            clearInterval(refreshInterval);
-            location.reload();
-        }
+            // Attach filter events
+            document.getElementById('filterYear').addEventListener('change', filterData);
+            document.getElementById('filterStatus').addEventListener('change', filterData);
+        });
 
-        // 4. Fetch Data 
-        async function fetchData(isManual = false) {
-            const btn = document.querySelector('.login-btn');
-            if(btn && !sessionStorage.getItem('xis_admin_key')) btn.innerText = "Authenticating...";
+        // 3. Login/Logout Functions
+        function manualLogin() {
+            const input = document.getElementById('adminPass').value;
+            if (!input) return;
+            secretKey = input;
+            fetchData();
+        }
 
-            try {
-                const response = await fetch('https://xisedge-api.netlify.app/.netlify/functions/nexichat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'getDashboardData', 
-                        sessionId: 'admin', 
-                        adminSecret: secretKey 
-                    })
-                });
+        function logout() {
+            sessionStorage.removeItem('xis_admin_key');
+            clearInterval(refreshInterval);
+            location.reload();
+        }
 
-                if (response.status === 401) {
-                    document.getElementById('loginError').style.display = 'block';
-                    if(btn) btn.innerText = "Unlock Dashboard";
-                    sessionStorage.removeItem('xis_admin_key');
-                    return;
-                }
+        // 4. Fetch Data 
+        async function fetchData(isManual = false) {
+            const btn = document.querySelector('.login-btn');
+            if(btn && !sessionStorage.getItem('xis_admin_key')) btn.innerText = "Authenticating...";
 
-                const data = await response.json();
-                
-                // Success
-                sessionStorage.setItem('xis_admin_key', secretKey);
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: 'getDashboardData', 
+                        sessionId: 'admin', 
+                        adminSecret: secretKey 
+                    })
+                });
 
-                const now = new Date();
-                document.getElementById('lastUpdated').innerText = now.toLocaleTimeString();
+                if (response.status === 401) {
+                    document.getElementById('loginError').style.display = 'block';
+                    if(btn) btn.innerText = "Unlock Dashboard";
+                    sessionStorage.removeItem('xis_admin_key');
+                    return;
+                }
 
-                allOrders = data.orders; 
-                allLeads = data.leads;
+                const data = await response.json();
+                
+                // Success
+                sessionStorage.setItem('xis_admin_key', secretKey);
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
 
-                // Update Metrics
-                document.getElementById('metricTotalOrders').innerText = allOrders.length.toLocaleString();
-                document.getElementById('metricTotalLeads').innerText = allLeads.length.toLocaleString();
+                const now = new Date();
+                document.getElementById('lastUpdated').innerText = now.toLocaleTimeString();
 
-                filterData(); // Render data after fetching
+                allOrders = data.orders || []; 
+                allLeads = data.leads || [];
+                allTickets = data.tickets || []; // NEW
+                allConsultations = data.consultations || []; // NEW
 
-                if (!refreshInterval) {
-                    refreshInterval = setInterval(() => fetchData(), 5000); 
-                }
+                // Update Metrics
+                document.getElementById('metricTotalOrders').innerText = allOrders.length.toLocaleString();
+                document.getElementById('metricTotalLeads').innerText = allLeads.length.toLocaleString();
+                document.getElementById('metricTotalTickets').innerText = allTickets.length.toLocaleString(); // NEW
+                document.getElementById('metricTotalConsultations').innerText = allConsultations.length.toLocaleString(); // NEW
 
-            } catch (err) {
-                console.error(err);
-                if (isManual) alert("Failed to refresh data.");
-            }
-        }
+                filterData(); // Render data after fetching
 
-        // 5. Helper: Status Mapping
-        function getOrderStatusDetails(apiStatus) {
-            const statusKey = String(apiStatus).toLowerCase(); 
-            const statusMap = {
-                'pending_payment': { text: 'Pending Payment', class: 'status-pending', filterKey: 'pending' },
-                'paid': { text: 'Paid', class: 'status-paid', filterKey: 'paid' },
-                'completed': { text: 'Paid', class: 'status-paid', filterKey: 'paid' },
-                'processing': { text: 'Processing', class: 'status-processing', filterKey: 'pending' },
-            };
-            return statusMap[statusKey] || { text: apiStatus, class: 'status-pending', filterKey: 'pending' };
-        }
+                if (!refreshInterval) {
+                    refreshInterval = setInterval(() => fetchData(), 5000); 
+                }
 
-        // 6. Filtering Logic
-        function filterData() {
-            const filterYear = document.getElementById('filterYear').value;
-            const filterStatus = document.getElementById('filterStatus').value;
-            
-            // --- 1. Filter Orders ---
-            let filteredOrders = allOrders.filter(order => {
-                const orderYear = new Date(order.created_at).getFullYear().toString();
-                const orderStatusDetails = getOrderStatusDetails(order.status);
+            } catch (err) {
+                console.error(err);
+                if (isManual) alert("Failed to refresh data.");
+            }
+        }
 
-                // Year Filter
-                const isYearMatch = filterYear === 'all' || orderYear === filterYear;
+        // 5. Helper: Status Mapping
+        function getOrderStatusDetails(apiStatus) {
+            const statusKey = String(apiStatus).toLowerCase(); 
+            const statusMap = {
+                'pending_payment': { text: 'Pending Payment', class: 'status-pending', filterKey: 'pending' },
+                'paid': { text: 'Paid', class: 'status-paid', filterKey: 'paid' },
+                'completed': { text: 'Paid', class: 'status-paid', filterKey: 'paid' },
+                'processing': { text: 'Processing', class: 'status-processing', filterKey: 'pending' },
+                'open': { text: 'Open', class: 'status-pending', filterKey: 'pending' }, // Added for Tickets
+                'closed': { text: 'Closed', class: 'status-paid', filterKey: 'paid' }, // Added for Tickets
+            };
+            return statusMap[statusKey] || { text: apiStatus, class: 'status-pending', filterKey: 'pending' };
+        }
 
-                // Status Filter
-                const isStatusMatch = filterStatus === 'all' || orderStatusDetails.filterKey === filterStatus;
+        // 6. Filtering Logic
+        function filterData() {
+            const filterYear = document.getElementById('filterYear').value;
+            const filterStatus = document.getElementById('filterStatus').value;
+            
+            // Helper for filtering by Year/Status
+            const filterByYearAndStatus = (item, statusField = 'status') => {
+                const itemYear = new Date(item.created_at).getFullYear().toString();
+                const itemStatusDetails = getOrderStatusDetails(item[statusField]);
+
+                const isYearMatch = filterYear === 'all' || itemYear === filterYear;
+                const isStatusMatch = filterStatus === 'all' || itemStatusDetails.filterKey === filterStatus;
 
                 return isYearMatch && isStatusMatch;
-            });
+            };
 
-            // --- 2. Filter Leads ---
-            let filteredLeads = allLeads.filter(lead => {
-                const leadYear = new Date(lead.created_at).getFullYear().toString();
-                return filterYear === 'all' || leadYear === filterYear;
-            });
+            // --- 1. Filter Orders ---
+            let filteredOrders = allOrders.filter(order => filterByYearAndStatus(order));
+
+            // --- 2. Filter Leads ---
+            let filteredLeads = allLeads.filter(lead => new Date(lead.created_at).getFullYear().toString() === filterYear || filterYear === 'all');
             
-            // Re-render the filtered data
-            renderOrders(filteredOrders); 
-            renderLeads(filteredLeads);
+            // --- 3. Filter Tickets (NEW) ---
+            let filteredTickets = allTickets.filter(ticket => filterByYearAndStatus(ticket));
+            
+            // --- 4. Filter Consultations (NEW) ---
+            let filteredConsultations = allConsultations.filter(consult => new Date(consult.created_at).getFullYear().toString() === filterYear || filterYear === 'all');
 
-            // Re-apply the current sort to the newly filtered data
-            if (currentSort.table === 'orders') {
-                sortTable('orders', currentSort.col, currentSort.type, filteredOrders);
-            } else if (currentSort.table === 'leads') {
-                sortTable('leads', currentSort.col, currentSort.type, filteredLeads);
+            // Re-render the filtered data
+            renderOrders(filteredOrders); 
+            renderLeads(filteredLeads);
+            renderTickets(filteredTickets); // NEW
+            renderConsultations(filteredConsultations); // NEW
+
+            // Re-apply the current sort to the newly filtered data
+            if (currentSort.table === 'orders') {
+                sortTable('orders', currentSort.col, currentSort.type, filteredOrders);
+            } else if (currentSort.table === 'leads') {
+                sortTable('leads', currentSort.col, currentSort.type, filteredLeads);
+            } else if (currentSort.table === 'tickets') {
+                sortTable('tickets', currentSort.col, currentSort.type, filteredTickets); // NEW
+            } else if (currentSort.table === 'consultations') {
+                sortTable('consultations', currentSort.col, currentSort.type, filteredConsultations); // NEW
             }
-        }
+        }
 
-        // 7. Render Orders 
-        function renderOrders(orders) {
-            const tbody = document.getElementById('ordersBody');
-            const mobileList = document.getElementById('ordersMobileList');
+        // 7. Render Orders (Logic unchanged, status map enhanced)
+        function renderOrders(orders) {
+            const tbody = document.getElementById('ordersBody');
+            const mobileList = document.getElementById('ordersMobileList');
+            tbody.innerHTML = '';
+            mobileList.innerHTML = '';
+            
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No orders found matching the filter criteria.</td></tr>';
+                mobileList.innerHTML = `<div class="empty-state">No orders found matching the filter criteria.</div>`;
+                return;
+            }
+
+            orders.forEach(order => {
+                const date = new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                const time = new Date(order.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                const statusDetails = getOrderStatusDetails(order.status); 
+
+                // Table Row
+                const tableRow = `
+                    <tr>
+                        <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
+                        <td>
+                            <strong>${order.customer_name || 'Unknown'}</strong><br>
+                            <span class="secondary-detail">${order.customer_email}</span>
+                        </td>
+                        <td>${order.customer_phone || '-'}</td>
+                        <td>
+                            <span style="font-weight:700; color:var(--text);">${(order.plan || '').toUpperCase()}</span> 
+                            <span class="secondary-detail">(${order.cycle || ''})</span>
+                        </td>
+                        <td class="numeric-data" style="font-weight:600;">${order.amount}</td>
+                        <td><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></td>
+                        <td><span class="status-badge ${statusDetails.class}">${statusDetails.text}</span></td>
+                    </tr>
+                `;
+                tbody.innerHTML += tableRow;
+
+                // Mobile Card
+                const mobileCard = `
+                    <div class="mobile-card">
+                        <div class="mobile-card-header">
+                            <span style="font-weight:700;">${order.customer_name || 'Unknown'}</span>
+                            <span class="status-badge ${statusDetails.class}">${statusDetails.text}</span>
+                        </div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Plan:</span> <span class="mobile-card-value">${(order.plan || '').toUpperCase()} (${order.cycle || ''})</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Amount:</span> <span class="mobile-card-value numeric-data">${order.amount}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Date:</span> <span class="mobile-card-value date-col">${date} at ${time}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Domain:</span> <span class="mobile-card-value"><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></span></div>
+                    </div>
+                `;
+                mobileList.innerHTML += mobileCard;
+            });
+        }
+
+        // 8. Render Leads (Logic unchanged)
+        function renderLeads(leads) {
+            const tbody = document.getElementById('leadsBody');
+            const mobileList = document.getElementById('leadsMobileList');
+            tbody.innerHTML = '';
+            mobileList.innerHTML = '';
+
+            if (!leads || leads.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads captured yet matching the filter criteria.</td></tr>';
+                mobileList.innerHTML = `<div class="empty-state">No leads captured yet matching the filter criteria.</div>`;
+                return;
+            }
+
+            leads.forEach(lead => {
+                const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                const time = new Date(lead.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                
+                const tableRow = `
+                    <tr>
+                        <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
+                        <td><strong>${lead.name}</strong></td>
+                        <td>${lead.email}</td>
+                        <td>${lead.phone}</td>
+                        <td class="monospace">${lead.session_id.slice(0, 8)}...</td>
+                    </tr>
+                `;
+                tbody.innerHTML += tableRow;
+                
+                // Mobile Card
+                const mobileCard = `
+                    <div class="mobile-card">
+                        <div class="mobile-card-header">
+                            <span style="font-weight:700;">${lead.name}</span>
+                            <span class="date-col">${date}</span>
+                        </div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Email:</span> <span class="mobile-card-value">${lead.email}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Phone:</span> <span class="mobile-card-value">${lead.phone}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Time:</span> <span class="mobile-card-value secondary-detail">${time}</span></div>
+                    </div>
+                `;
+                mobileList.innerHTML += mobileCard;
+            });
+        }
+        
+        // 9. Render Tickets (NEW)
+        function renderTickets(tickets) {
+            const tbody = document.getElementById('ticketsBody');
+            const mobileList = document.getElementById('ticketsMobileList');
             tbody.innerHTML = '';
             mobileList.innerHTML = '';
-            
-            if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No orders found matching the filter criteria.</td></tr>';
-                mobileList.innerHTML = `<div class="empty-state">No orders found matching the filter criteria.</div>`;
+
+            if (!tickets || tickets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No support tickets found matching the filter criteria.</td></tr>';
+                mobileList.innerHTML = `<div class="empty-state">No support tickets found matching the filter criteria.</div>`;
                 return;
             }
 
-            orders.forEach(order => {
-                const date = new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                const time = new Date(order.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                const statusDetails = getOrderStatusDetails(order.status); 
+            tickets.forEach(ticket => {
+                const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                const time = new Date(ticket.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                const statusDetails = getOrderStatusDetails(ticket.status || 'open'); 
+                
+                const tableRow = `
+                    <tr>
+                        <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
+                        <td>
+                            <strong>${ticket.name || 'Unknown'}</strong><br>
+                            <span class="secondary-detail">${ticket.email || 'N/A'}</span>
+                        </td>
+                        <td><span style="font-weight:700;">${ticket.category || 'N/A'}</span></td>
+                        <td>${ticket.details ? ticket.details.slice(0, 50) + '...' : 'No details provided'}</td>
+                        <td>${ticket.phone || '-'}</td>
+                        <td><span class="status-badge ${statusDetails.class}">${statusDetails.text}</span></td>
+                    </tr>
+                `;
+                tbody.innerHTML += tableRow;
+                
+                // Mobile Card
+                const mobileCard = `
+                    <div class="mobile-card">
+                        <div class="mobile-card-header">
+                            <span style="font-weight:700;">${ticket.name || 'Unknown'}</span>
+                            <span class="status-badge ${statusDetails.class}">${statusDetails.text}</span>
+                        </div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Category:</span> <span class="mobile-card-value">${ticket.category || 'N/A'}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Date:</span> <span class="mobile-card-value date-col">${date} at ${time}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Details:</span> <span class="mobile-card-value secondary-detail">${ticket.details ? ticket.details.slice(0, 40) + '...' : 'N/A'}</span></div>
+                    </div>
+                `;
+                mobileList.innerHTML += mobileCard;
+            });
+        }
+
+        // 10. Render Consultations (NEW)
+        function renderConsultations(consultations) {
+            const tbody = document.getElementById('consultationsBody');
+            const mobileList = document.getElementById('consultationsMobileList');
+            tbody.innerHTML = '';
+            mobileList.innerHTML = '';
+
+            if (!consultations || consultations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No consultation requests found matching the filter criteria.</td></tr>';
+                mobileList.innerHTML = `<div class="empty-state">No consultation requests found matching the filter criteria.</div>`;
+                return;
+            }
+
+            consultations.forEach(consult => {
+                const date = new Date(consult.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                const time = new Date(consult.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
                 // Table Row
                 const tableRow = `
                     <tr>
                         <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
                         <td>
-                            <strong>${order.customer_name || 'Unknown'}</strong><br>
-                            <span class="secondary-detail">${order.customer_email}</span>
+                            <strong>${consult.name || 'Unknown'}</strong><br>
+                            <span class="secondary-detail">${consult.email}</span>
                         </td>
-                        <td>${order.customer_phone || '-'}</td>
                         <td>
-                            <span style="font-weight:700; color:var(--text);">${(order.plan || '').toUpperCase()}</span> 
-                            <span class="secondary-detail">(${order.cycle || ''})</span>
+                            <span style="font-weight:700; color:var(--primary);">${consult.serviceType || 'N/A'}</span><br>
+                            <span class="secondary-detail">${consult.businessName || 'N/A'}</span>
                         </td>
-                        <td class="numeric-data" style="font-weight:600;">${order.amount}</td>
-                        <td><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></td>
-                        <td><span class="status-badge ${statusDetails.class}">${statusDetails.text}</span></td>
-                    </tr>
-                `;
-                tbody.innerHTML += tableRow;
-
-                // Mobile Card
-                const mobileCard = `
-                    <div class="mobile-card">
-                        <div class="mobile-card-header">
-                            <span style="font-weight:700;">${order.customer_name || 'Unknown'}</span>
-                            <span class="status-badge ${statusDetails.class}">${statusDetails.text}</span>
-                        </div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Plan:</span> <span class="mobile-card-value">${(order.plan || '').toUpperCase()} (${order.cycle || ''})</span></div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Amount:</span> <span class="mobile-card-value numeric-data">${order.amount}</span></div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Date:</span> <span class="mobile-card-value date-col">${date} at ${time}</span></div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Domain:</span> <span class="mobile-card-value"><a href="http://${order.domain}" target="_blank" style="color:var(--primary); text-decoration:none;">${order.domain}</a></span></div>
-                    </div>
-                `;
-                mobileList.innerHTML += mobileCard;
-            });
-        }
-
-        // 8. Render Leads 
-        function renderLeads(leads) {
-            const tbody = document.getElementById('leadsBody');
-            const mobileList = document.getElementById('leadsMobileList');
-            tbody.innerHTML = '';
-            mobileList.innerHTML = '';
-
-            if (!leads || leads.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads captured yet matching the filter criteria.</td></tr>';
-                mobileList.innerHTML = `<div class="empty-state">No leads captured yet matching the filter criteria.</div>`;
-                return;
-            }
-
-            leads.forEach(lead => {
-                const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                const time = new Date(lead.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                
-                const tableRow = `
-                    <tr>
-                        <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
-                        <td><strong>${lead.name}</strong></td>
-                        <td>${lead.email}</td>
-                        <td>${lead.phone}</td>
-                        <td class="monospace">${lead.session_id.slice(0, 8)}...</td>
+                        <td>${consult.details ? consult.details.slice(0, 50) + '...' : 'N/A'}<br><span class="secondary-detail">Budget: ${consult.budget || 'N/A'}</span></td>
+                        <td>
+                            ${consult.refLink && consult.refLink.toLowerCase() !== 'skip' ? `<a href="${consult.refLink}" target="_blank" style="color:#2563eb; text-decoration:underline;">View Link</a>` : 'None'}
+                        </td>
                     </tr>
                 `;
                 tbody.innerHTML += tableRow;
@@ -524,88 +698,111 @@
                 const mobileCard = `
                     <div class="mobile-card">
                         <div class="mobile-card-header">
-                            <span style="font-weight:700;">${lead.name}</span>
-                            <span class="date-col">${date}</span>
+                            <span style="font-weight:700;">${consult.name || 'Unknown'}</span>
+                            <span style="font-weight:700; color:var(--primary);">${consult.serviceType || 'N/A'}</span>
                         </div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Email:</span> <span class="mobile-card-value">${lead.email}</span></div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Phone:</span> <span class="mobile-card-value">${lead.phone}</span></div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Time:</span> <span class="mobile-card-value secondary-detail">${time}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Email:</span> <span class="mobile-card-value">${consult.email}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Project:</span> <span class="mobile-card-value">${consult.businessName || 'N/A'}</span></div>
+                        <div class="mobile-card-detail"><span class="mobile-card-label">Budget:</span> <span class="mobile-card-value numeric-data">${consult.budget || 'N/A'}</span></div>
                     </div>
                 `;
                 mobileList.innerHTML += mobileCard;
             });
         }
 
-        // 9. Tab Switching
-        function switchTab(tabName) {
-            document.querySelectorAll('.data-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tabName + 'Section').classList.add('active');
-            
-            const tabs = document.querySelectorAll('.tabs .tab');
-            if(tabName === 'orders') tabs[0].classList.add('active');
-            else tabs[1].classList.add('active');
-        }
 
-        // 10. Table Sorting Logic
-        function sortTable(tableName, column, type, dataToSort = null) {
-            const dataToUse = dataToSort || (tableName === 'orders' ? allOrders : allLeads);
-            const renderFn = tableName === 'orders' ? renderOrders : renderLeads;
-            const headerRow = document.querySelector(`#${tableName}Table thead tr`);
+        // 11. Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.data-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName + 'Section').classList.add('active');
+            
+            const tabs = document.querySelectorAll('.tabs .tab');
+            const tabIndexMap = { 'orders': 0, 'leads': 1, 'tickets': 2, 'consultations': 3 };
 
-            let newDir = 'asc';
-            // Determine sort direction
-            if (currentSort.table === tableName && currentSort.col === column && currentSort.dir === 'asc') {
-                newDir = 'desc';
-            }
+            tabs[tabIndexMap[tabName]].classList.add('active');
 
-            dataToUse.sort((a, b) => {
-                let valA, valB;
-                
-                const keys = tableName === 'orders'  
-                    ? ['created_at', 'customer_name', 'customer_phone', 'plan', 'amount', 'domain', 'status']
-                    : ['created_at', 'name', 'email', 'phone', 'session_id'];
-                
-                valA = a[keys[column]];
-                valB = b[keys[column]];
-                
-                // Type casting for comparison
-                if (type === 'numeric') {
-                    // Extract number from string (e.g., "$199.00" -> 199.00)
-                    valA = parseFloat(String(valA).replace(/[^0-9.]/g, '')) || 0;
-                    valB = parseFloat(String(valB).replace(/[^0-9.]/g, '')) || 0;
-                } else if (type === 'date') {
-                    valA = new Date(valA).getTime();
-                    valB = new Date(valB).getTime();
-                } else if (type === 'string') {
-                    valA = String(valA).toLowerCase();
-                    valB = String(valB).toLowerCase();
-                }
-                
-                let comparison = 0;
-                if (valA > valB) comparison = 1;
-                if (valA < valB) comparison = -1;
+            // Set currentSort table to match the active tab for correct sorting
+            currentSort.table = tabName;
+            // Re-render and sort the current table data (if already sorted once)
+            filterData();
+        }
 
-                return newDir === 'asc' ? comparison : comparison * -1;
-            });
+        // 12. Table Sorting Logic
+        function sortTable(tableName, column, type, dataToSort = null) {
+            const dataMap = {
+                'orders': allOrders,
+                'leads': allLeads,
+                'tickets': allTickets,
+                'consultations': allConsultations
+            };
+            const dataToUse = dataToSort || dataMap[tableName];
+            const renderFn = tableName === 'orders' ? renderOrders : 
+                             tableName === 'leads' ? renderLeads :
+                             tableName === 'tickets' ? renderTickets : 
+                             renderConsultations;
 
-            // Update current sort state
-            currentSort = { table: tableName, col: column, dir: newDir, type: type };
+            const headerRow = document.querySelector(`#${tableName}Table thead tr`);
 
-            // Update header arrow indicators
-            headerRow.querySelectorAll('th').forEach((th, index) => {
-                th.classList.remove('sorted', 'asc');
-                if (index === column) {
-                    th.classList.add('sorted');
-                    if (newDir === 'asc') {
-                        th.classList.add('asc');
-                    }
-                }
-            });
+            let newDir = 'asc';
+            // Determine sort direction
+            if (currentSort.table === tableName && currentSort.col === column && currentSort.dir === 'asc') {
+                newDir = 'desc';
+            }
 
-            renderFn(dataToUse); // Render the sorted data
-        }
-    </script>
+            dataToUse.sort((a, b) => {
+                let valA, valB;
+                
+                const keys = tableName === 'orders'  
+                    ? ['created_at', 'customer_name', 'customer_phone', 'plan', 'amount', 'domain', 'status']
+                    : tableName === 'leads'
+                    ? ['created_at', 'name', 'email', 'phone', 'session_id']
+                    : tableName === 'tickets'
+                    ? ['created_at', 'name', 'category', 'details', 'phone', 'status']
+                    : tableName === 'consultations'
+                    ? ['created_at', 'name', 'serviceType', 'details', 'refLink']
+                    : [];
+                
+                valA = a[keys[column]];
+                valB = b[keys[column]];
+                
+                // Type casting for comparison
+                if (type === 'numeric') {
+                    // Extract number from string (e.g., "$199.00" -> 199.00)
+                    valA = parseFloat(String(valA).replace(/[^0-9.]/g, '')) || 0;
+                    valB = parseFloat(String(valB).replace(/[^0-9.]/g, '')) || 0;
+                } else if (type === 'date') {
+                    valA = new Date(valA).getTime();
+                    valB = new Date(valB).getTime();
+                } else if (type === 'string') {
+                    valA = String(valA || '').toLowerCase();
+                    valB = String(valB || '').toLowerCase();
+                }
+                
+                let comparison = 0;
+                if (valA > valB) comparison = 1;
+                if (valA < valB) comparison = -1;
+
+                return newDir === 'asc' ? comparison : comparison * -1;
+            });
+
+            // Update current sort state
+            currentSort = { table: tableName, col: column, dir: newDir, type: type };
+
+            // Update header arrow indicators
+            headerRow.querySelectorAll('th').forEach((th, index) => {
+                th.classList.remove('sorted', 'asc');
+                if (index === column) {
+                    th.classList.add('sorted');
+                    if (newDir === 'asc') {
+                        th.classList.add('asc');
+                    }
+                }
+            });
+
+            renderFn(dataToUse); // Render the sorted data
+        }
+    </script>
 </body>
 </html>
