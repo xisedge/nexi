@@ -113,6 +113,25 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
         }
 
+        // --- NEW: SAVE TICKET ---
+        if (action === 'saveTicket') {
+            const { error } = await supabase.from('tickets').insert([{
+                session_id: sessionId,
+                category: userDetails.category,
+                description: userDetails.details,
+                email: userDetails.email,
+                name: userDetails.name,   
+                phone: userDetails.phone  
+            }]);
+            
+            if (error) {
+                console.error('Ticket Error:', error);
+                return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to save ticket' }) };
+            }
+            
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+        }
+
         // ============================================================
         // ACTION B: LOAD HISTORY (Persistent Chat)
         // ============================================================
