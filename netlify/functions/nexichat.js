@@ -154,40 +154,64 @@ exports.handler = async (event) => {
 
         // ACTION: GET DASHBOARD DATA (Admin Only)
         // ============================================================
-        if (action === 'getDashboardData') {
-            // 1. Verify Password (Security Check)
-            const { adminSecret } = body;
-            if (adminSecret !== process.env.ADMIN_PASSWORD) {
-                return { 
-                    statusCode: 401, 
-                    headers, 
-                    body: JSON.stringify({ error: 'Invalid Password' }) 
-                };
-            }
+        // Function Body: Assumes 'supabase' object, 'headers', and 'body' are already defined/available.
 
-            // 2. Fetch Leads
-            const { data: leads, error: leadError } = await supabase
-                .from('leads')
-                .select('*')
-                .order('created_at', { ascending: false });
+if (action === 'getDashboardData') {
+    // 1. Verify Password (Security Check)
+    const { adminSecret } = body;
+    if (adminSecret !== process.env.ADMIN_PASSWORD) {
+        return { 
+            statusCode: 401, 
+            headers, 
+            body: JSON.stringify({ error: 'Invalid Password' }) 
+        };
+    }
 
-            // 3. Fetch Orders
-            const { data: orders, error: orderError } = await supabase
-                .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false });
+    // 2. Execute all queries concurrently for efficiency
+    const [
+        ordersResult, 
+        leadsResult, 
+        ticketsResult, 
+        consultsResult
+    ] = await Promise.all([
+        // Query 1: Orders
+        supabase.from('orders').select('*').order('created_at', { ascending: false }),
+        
+        // Query 2: Leads
+        supabase.from('leads').select('*').order('created_at', { ascending: false }),
+        
+        // Query 3: Tickets (NEW)
+        supabase.from('tickets').select('created_at, name, email, phone, category, description, session_id').order('created_at', { ascending: false }),
 
-            if (leadError || orderError) {
-                return { statusCode: 500, headers, body: JSON.stringify({ error: 'Database Error' }) };
-            }
+        // Query 4: Consultations (NEW)
+        supabase.from('consultations').select('created_at, name, email, phone, serviceType, budget, details, refLink').order('created_at', { ascending: false }),
+    ]);
 
-            // 4. Return Data
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ leads, orders })
-            };
-        }
+    // 3. Check for any database errors
+    if (ordersResult.error || leadsResult.error || ticketsResult.error || consultsResult.error) {
+        console.error("DB Error fetching dashboard data:", 
+                       ordersResult.error, 
+                       ticketsResult.error, 
+                       consultsResult.error);
+        return { 
+            statusCode: 500, 
+            headers, 
+            body: JSON.stringify({ error: 'Database Query Failed' }) 
+        };
+    }
+
+    // 4. Return ALL Data
+    return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ 
+            leads: leadsResult.data, 
+            orders: ordersResult.data,
+            tickets: ticketsResult.data, // NEW DATA
+            consultations: consultsResult.data // NEW DATA
+        })
+    };
+}
 
         // ============================================================
         // ACTION C: NORMAL CHAT MESSAGE
