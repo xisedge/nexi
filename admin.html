@@ -200,13 +200,14 @@
         }
     </style>
 </head>
+
 <body>
 
     <div id="loginOverlay">
         <div class="login-box">
             <img src="https://cdn.jsdelivr.net/gh/xisedge/assets@main/XIS%20EDGE%20LOGO%20PURPLE.png" 
              alt="XIS EDGE" 
-             style="height: 50px; margin: 0 auto 15px auto; display: block; margin-left: -12px;">
+             style="height: 50px; margin: 0 auto 15px auto; display: block;">
             
             <h2 style="margin-top:0; color: var(--primary);">XIS Admin</h2>
             <p style="color:var(--secondary-text); font-size: 14px; margin-bottom: 20px;">Enter your master key to access.</p>
@@ -221,8 +222,23 @@
         </div>
     </div>
 
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Details</h3>
+                <button class="close-modal-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container" id="app">
+        
         <div class="header">
+            <div>
                 <img src="https://cdn.jsdelivr.net/gh/xisedge/assets@main/XIS%20EDGE%20LOGO%20PURPLE.png" 
                  alt="XIS EDGE" 
                  style="height: 30px; margin-bottom: 10px; display:block;">
@@ -240,20 +256,6 @@
             </div>
         </div>
 
-        <div id="detailModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Details</h3>
-                <button class="close-modal-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                </div>
-            <div class="modal-footer">
-                <button class="action-btn" onclick="closeModal()">Close</button>
-            </div>
-        </div>
-    </div>
-        
         <div class="metrics-grid">
             <div class="metrics-wrapper">
                 <div class="metric-card">
@@ -264,7 +266,7 @@
                     <div class="metric-value" id="metricTotalLeads">0</div>
                     <div class="metric-label">Total Leads</div>
                 </div>
-                </div>
+            </div>
             
             <div class="filter-card">
                 <p class="filter-label" style="font-weight:700;">Data Filters (Smart View)</p>
@@ -282,108 +284,107 @@
                         <option value="all">All Statuses</option>
                         <option value="paid">Paid</option>
                         <option value="pending">Pending/Processing</option>
-                        </select>
+                    </select>
                 </div>
             </div>
-
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('orders')">Orders</div>
-                <div class="tab" onclick="switchTab('leads')">Leads</div>
-                <div class="tab" onclick="switchTab('tickets')">Tickets</div>
-                <div class="tab" onclick="switchTab('consultations')">Consultations</div>
-            </div>
-
-            <div id="ordersSection" class="data-section active">
-                <div class="mobile-list-container" id="ordersMobileList"></div>
-                <div class="card">
-                    <table id="ordersTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('orders', 0, 'date')">Date & Time</th> 
-                                <th onclick="sortTable('orders', 1, 'string')">Customer</th>
-                                <th onclick="sortTable('orders', 2, 'string')">Phone</th>
-                                <th onclick="sortTable('orders', 3, 'string')">Plan Details</th>
-                                <th onclick="sortTable('orders', 4, 'numeric')">Amount</th>
-                                <th onclick="sortTable('orders', 5, 'string')">Domain</th>
-                                <th onclick="sortTable('orders', 6, 'string')">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersBody">
-                            <tr><td colspan="7" class="empty-state">Loading orders...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="leadsSection" class="data-section">
-                <div class="mobile-list-container" id="leadsMobileList"></div>
-                <div class="card">
-                    <table id="leadsTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('leads', 0, 'date')">Date & Time</th> 
-                                <th onclick="sortTable('leads', 1, 'string')">Name</th>
-                                <th onclick="sortTable('leads', 2, 'string')">Email</th>
-                                <th onclick="sortTable('leads', 3, 'string')">Phone</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leadsBody">
-                            <tr><td colspan="5" class="empty-state">Loading leads...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div id="ticketsSection" class="data-section">
-                <div class="mobile-list-container" id="ticketsMobileList"></div>
-                <div class="card">
-                    <table id="ticketsTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('tickets', 0, 'date')">Date</th>
-                                <th onclick="sortTable('tickets', 1, 'string')">Name</th>
-                                <th onclick="sortTable('tickets', 2, 'string')">Email</th>
-                                <th onclick="sortTable('tickets', 3, 'string')">Status</th>
-                                <th onclick="sortTable('tickets', 4, 'string')">Phone</th>
-                                <th onclick="sortTable('tickets', 5, 'string')">Category</th>
-                                <th onclick="sortTable('tickets', 6, 'string')">Description</th>
-                                <th onclick="sortTable('tickets', 7, 'string')">Ticket Ref</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ticketsBody">
-                            <tr><td colspan="5" class="empty-state">Loading support tickets...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="consultationsSection" class="data-section">
-                <div class="mobile-list-container" id="consultationsMobileList"></div>
-                <div class="card">
-                    <table id="consultationsTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('consultations', 0, 'date')">Date</th>
-                                <th onclick="sortTable('consultations', 1, 'string')">Name</th>
-                                <th onclick="sortTable('consultations', 2, 'string')">Email</th>
-                                <th onclick="sortTable('consultations', 3, 'string')">Phone</th>
-                                <th onclick="sortTable('consultations', 4, 'string')">Service</th>
-                                <th onclick="sortTable('consultations', 5, 'string')">Budget</th>
-                                <th onclick="sortTable('consultations', 6, 'string')">Business</th>
-                                <th onclick="sortTable('consultations', 7, 'string')">Details</th>
-                                <th onclick="sortTable('consultations', 8, 'string')">Ref Link</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="consultationsBody">
-                            <tr><td colspan="5" class="empty-state">Loading consultation requests...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
+        </div> 
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('orders')">Orders</div>
+            <div class="tab" onclick="switchTab('leads')">Leads</div>
+            <div class="tab" onclick="switchTab('tickets')">Tickets</div>
+            <div class="tab" onclick="switchTab('consultations')">Consultations</div>
         </div>
+
+        <div id="ordersSection" class="data-section active">
+            <div class="mobile-list-container" id="ordersMobileList"></div>
+            <div class="card">
+                <table id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('orders', 0, 'date')">Date & Time</th> 
+                            <th onclick="sortTable('orders', 1, 'string')">Customer</th>
+                            <th onclick="sortTable('orders', 2, 'string')">Phone</th>
+                            <th onclick="sortTable('orders', 3, 'string')">Plan Details</th>
+                            <th onclick="sortTable('orders', 4, 'numeric')">Amount</th>
+                            <th onclick="sortTable('orders', 5, 'string')">Domain</th>
+                            <th onclick="sortTable('orders', 6, 'string')">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersBody">
+                        <tr><td colspan="7" class="empty-state">Loading orders...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="leadsSection" class="data-section">
+            <div class="mobile-list-container" id="leadsMobileList"></div>
+            <div class="card">
+                <table id="leadsTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('leads', 0, 'date')">Date & Time</th> 
+                            <th onclick="sortTable('leads', 1, 'string')">Name</th>
+                            <th onclick="sortTable('leads', 2, 'string')">Email</th>
+                            <th onclick="sortTable('leads', 3, 'string')">Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsBody">
+                        <tr><td colspan="4" class="empty-state">Loading leads...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="ticketsSection" class="data-section">
+            <div class="mobile-list-container" id="ticketsMobileList"></div>
+            <div class="card">
+                <table id="ticketsTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('tickets', 0, 'date')">Date</th>
+                            <th onclick="sortTable('tickets', 1, 'string')">Name</th>
+                            <th onclick="sortTable('tickets', 2, 'string')">Email</th>
+                            <th onclick="sortTable('tickets', 3, 'string')">Status</th>
+                            <th onclick="sortTable('tickets', 4, 'string')">Phone</th>
+                            <th onclick="sortTable('tickets', 5, 'string')">Category</th>
+                            <th onclick="sortTable('tickets', 6, 'string')">Description</th>
+                            <th onclick="sortTable('tickets', 7, 'string')">Ticket Ref</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsBody">
+                        <tr><td colspan="8" class="empty-state">Loading support tickets...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="consultationsSection" class="data-section">
+            <div class="mobile-list-container" id="consultationsMobileList"></div>
+            <div class="card">
+                <table id="consultationsTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('consultations', 0, 'date')">Date</th>
+                            <th onclick="sortTable('consultations', 1, 'string')">Name</th>
+                            <th onclick="sortTable('consultations', 2, 'string')">Email</th>
+                            <th onclick="sortTable('consultations', 3, 'string')">Phone</th>
+                            <th onclick="sortTable('consultations', 4, 'string')">Service</th>
+                            <th onclick="sortTable('consultations', 5, 'string')">Budget</th>
+                            <th onclick="sortTable('consultations', 6, 'string')">Business</th>
+                            <th onclick="sortTable('consultations', 7, 'string')">Details</th>
+                            <th onclick="sortTable('consultations', 8, 'string')">Ref Link</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="consultationsBody">
+                        <tr><td colspan="9" class="empty-state">Loading consultation requests...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
