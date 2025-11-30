@@ -121,7 +121,8 @@ exports.handler = async (event) => {
                 description: userDetails.details,
                 email: userDetails.email,
                 name: userDetails.name,   
-                phone: userDetails.phone  
+                phone: userDetails.phone,
+                ticket_number: userDetails.ticketId
             }]);
             
             if (error) {
