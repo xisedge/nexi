@@ -311,7 +311,6 @@
                                 <th onclick="sortTable('leads', 1, 'string')">Name</th>
                                 <th onclick="sortTable('leads', 2, 'string')">Email</th>
                                 <th onclick="sortTable('leads', 3, 'string')">Phone</th>
-                                <th onclick="sortTable('leads', 4, 'string')">Session ID</th>
                             </tr>
                         </thead>
                         <tbody id="leadsBody">
@@ -334,7 +333,6 @@
                                 <th onclick="sortTable('tickets', 4, 'string')">Phone</th>
                                 <th onclick="sortTable('tickets', 5, 'string')">Category</th>
                                 <th onclick="sortTable('tickets', 6, 'string')">Description</th>
-                                <th onclick="sortTable('tickets', 7, 'string')">Session ID</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -628,160 +626,162 @@
 
         // 9. Render Leads (Keep original)
         function renderLeads(leads) {
-            const tbody = document.getElementById('leadsBody');
-            const mobileList = document.getElementById('leadsMobileList');
-            tbody.innerHTML = '';
-            mobileList.innerHTML = '';
-
-            if (!leads || leads.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads captured yet matching the filter criteria.</td></tr>';
-                mobileList.innerHTML = `<div class="empty-state">No leads captured yet matching the filter criteria.</div>`;
-                return;
-            }
-
-            leads.forEach(lead => {
-                const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                const time = new Date(lead.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                
-                const tableRow = `
-                    <tr>
-                        <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
-                        <td><strong>${lead.name}</strong></td>
-                        <td>${lead.email}</td>
-                        <td>${lead.phone}</td>
-                        <td class="monospace">${lead.session_id.slice(0, 8)}...</td>
-                    </tr>
-                `;
-                tbody.innerHTML += tableRow;
-                
-                // Mobile Card
-                const mobileCard = `
-                    <div class="mobile-card">
-                        <div class="mobile-card-header">
-                            <span style="font-weight:700;">${lead.name}</span>
-                            <span class="date-col">${date}</span>
-                        </div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Email:</span> <span class="mobile-card-value">${lead.email}</span></div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Phone:</span> <span class="mobile-card-value">${lead.phone}</span></div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Time:</span> <span class="mobile-card-value secondary-detail">${time}</span></div>
-                    </div>
-                `;
-                mobileList.innerHTML += mobileCard;
-            });
+        const tbody = document.getElementById('leadsBody');
+        const mobileList = document.getElementById('leadsMobileList');
+        tbody.innerHTML = '';
+        mobileList.innerHTML = '';
+    
+        if (!leads || leads.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No leads found.</td></tr>'; // Updated colspan to 4
+            mobileList.innerHTML = `<div class="empty-state">No leads found.</div>`;
+            return;
         }
+    
+        leads.forEach(lead => {
+            const date = new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            const time = new Date(lead.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            
+            // Removed the 5th <td> containing session_id
+            const tableRow = `
+                <tr>
+                    <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
+                    <td><strong>${lead.name}</strong></td>
+                    <td>${lead.email}</td>
+                    <td>${lead.phone}</td>
+                </tr>
+            `;
+            tbody.innerHTML += tableRow;
+            
+            // Mobile card stays the same
+            const mobileCard = `
+                <div class="mobile-card">
+                    <div class="mobile-card-header">
+                        <span style="font-weight:700;">${lead.name}</span>
+                        <span class="date-col">${date}</span>
+                    </div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Email:</span> <span class="mobile-card-value">${lead.email}</span></div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Phone:</span> <span class="mobile-card-value">${lead.phone}</span></div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Time:</span> <span class="mobile-card-value secondary-detail">${time}</span></div>
+                </div>
+            `;
+            mobileList.innerHTML += mobileCard;
+        });
+    }
 
         // 10. NEW: Render Tickets
         function renderTickets(tickets) {
-            const tbody = document.getElementById('ticketsBody');
-            const mobileList = document.getElementById('ticketsMobileList');
-            tbody.innerHTML = '';
-            mobileList.innerHTML = '';
-
-            if (!tickets || tickets.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No support tickets found.</td></tr>';
-                mobileList.innerHTML = `<div class="empty-state">No support tickets found.</div>`;
-                return;
-            }
-
-            // Note: We pass 'index' to the button so it knows which data to open
-            tickets.forEach((ticket, index) => {
-                const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-                
-                // Truncate description for the table view only
-                const shortDesc = (ticket.description || '').length > 40 ? (ticket.description.slice(0, 40) + '...') : ticket.description;
-
-                const tableRow = `
-                    <tr>
-                        <td class="date-col">${date}</td>
-                        <td><strong>${ticket.name || 'Unknown'}</strong></td>
-                        <td>${ticket.email || '-'}</td>
-                        <td><span class="status-badge status-pending">${ticket.status || 'Open'}</span></td>
-                        <td>${ticket.phone || '-'}</td>
-                        <td>${ticket.category || 'General'}</td>
-                        <td>${shortDesc}</td>
-                        <td style="text-align:center;">
-                            <button class="action-btn" style="padding:4px 10px;" onclick="openModal('tickets', ${index})">
-                                <i class="bi bi-eye-fill"></i> View
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += tableRow;
-                
-                // Mobile Card with View Button
-                const mobileCard = `
-                    <div class="mobile-card">
-                        <div class="mobile-card-header">
-                            <span style="font-weight:700;">${ticket.name}</span>
-                            <span class="status-badge status-pending">${ticket.status || 'Open'}</span>
-                        </div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Issue:</span> ${ticket.category}</div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Desc:</span> ${shortDesc}</div>
-                        <div style="margin-top:10px; text-align:right;">
-                            <button class="action-btn" style="width:100%; justify-content:center;" onclick="openModal('tickets', ${index})">
-                                View Full Details
-                            </button>
-                        </div>
-                    </div>
-                `;
-                mobileList.innerHTML += mobileCard;
-            });
+        const tbody = document.getElementById('ticketsBody');
+        const mobileList = document.getElementById('ticketsMobileList');
+        tbody.innerHTML = '';
+        mobileList.innerHTML = '';
+    
+        if (!tickets || tickets.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No support tickets found.</td></tr>';
+            mobileList.innerHTML = `<div class="empty-state">No support tickets found.</div>`;
+            return;
         }
+    
+        tickets.forEach((ticket, index) => {
+            // 1. Calculate Date AND Time
+            const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            const time = new Date(ticket.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            
+            const shortDesc = (ticket.description || '').length > 40 ? (ticket.description.slice(0, 40) + '...') : ticket.description;
+    
+            const tableRow = `
+                <tr>
+                    <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
+                    <td><strong>${ticket.name || 'Unknown'}</strong></td>
+                    <td>${ticket.email || '-'}</td>
+                    <td><span class="status-badge status-pending">${ticket.status || 'Open'}</span></td>
+                    <td>${ticket.phone || '-'}</td>
+                    <td>${ticket.category || 'General'}</td>
+                    <td>${shortDesc}</td>
+                    <td style="text-align:center;">
+                        <button class="action-btn" style="padding:4px 10px;" onclick="openModal('tickets', ${index})">
+                            <i class="bi bi-eye-fill"></i> View
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += tableRow;
+            
+            const mobileCard = `
+                <div class="mobile-card">
+                    <div class="mobile-card-header">
+                        <span style="font-weight:700;">${ticket.name}</span>
+                        <span class="status-badge status-pending">${ticket.status || 'Open'}</span>
+                    </div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Issue:</span> ${ticket.category}</div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Desc:</span> ${shortDesc}</div>
+                    <div style="margin-top:10px; text-align:right;">
+                        <button class="action-btn" style="width:100%; justify-content:center;" onclick="openModal('tickets', ${index})">
+                            View Full Details
+                        </button>
+                    </div>
+                </div>
+            `;
+            mobileList.innerHTML += mobileCard;
+        });
+    }
 
         // 11. NEW: Render Consultations
         function renderConsultations(consults) {
-            const tbody = document.getElementById('consultationsBody');
-            const mobileList = document.getElementById('consultationsMobileList');
-            tbody.innerHTML = '';
-            mobileList.innerHTML = '';
-
-            if (!consults || consults.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No requests found.</td></tr>';
-                mobileList.innerHTML = `<div class="empty-state">No requests found.</div>`;
-                return;
-            }
-
-            consults.forEach((consult, index) => {
-                const date = new Date(consult.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-                const shortDetails = (consult.project_details || '').length > 40 ? (consult.project_details.slice(0, 40) + '...') : consult.project_details;
-
-                const tableRow = `
-                    <tr>
-                        <td class="date-col">${date}</td>
-                        <td><strong>${consult.customer_name || 'Unknown'}</strong></td>
-                        <td>${consult.customer_email || '-'}</td>
-                        <td>${consult.customer_phone || '-'}</td>
-                        <td>${consult.service_type || '-'}</td>
-                        <td>${consult.budget || '-'}</td>
-                        <td>${consult.business_name || '-'}</td>
-                        <td>${shortDetails}</td>
-                        <td style="text-align:center;">
-                            <button class="action-btn" style="padding:4px 10px;" onclick="openModal('consultations', ${index})">
-                                <i class="bi bi-eye-fill"></i> View
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += tableRow;
-
-                const mobileCard = `
-                    <div class="mobile-card">
-                        <div class="mobile-card-header">
-                            <span style="font-weight:700;">${consult.customer_name}</span>
-                            <span class="secondary-detail">${consult.service_type}</span>
-                        </div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Business:</span> ${consult.business_name || 'N/A'}</div>
-                        <div class="mobile-card-detail"><span class="mobile-card-label">Details:</span> ${shortDetails}</div>
-                        <div style="margin-top:10px; text-align:right;">
-                            <button class="action-btn" style="width:100%; justify-content:center;" onclick="openModal('consultations', ${index})">
-                                View Full Details
-                            </button>
-                        </div>
-                    </div>
-                `;
-                mobileList.innerHTML += mobileCard;
-            });
+        const tbody = document.getElementById('consultationsBody');
+        const mobileList = document.getElementById('consultationsMobileList');
+        tbody.innerHTML = '';
+        mobileList.innerHTML = '';
+    
+        if (!consults || consults.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No requests found.</td></tr>';
+            mobileList.innerHTML = `<div class="empty-state">No requests found.</div>`;
+            return;
         }
+    
+        consults.forEach((consult, index) => {
+            // 1. Calculate Date AND Time
+            const date = new Date(consult.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            const time = new Date(consult.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    
+            const shortDetails = (consult.project_details || '').length > 40 ? (consult.project_details.slice(0, 40) + '...') : consult.project_details;
+    
+            const tableRow = `
+                <tr>
+                    <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
+                    <td><strong>${consult.customer_name || 'Unknown'}</strong></td>
+                    <td>${consult.customer_email || '-'}</td>
+                    <td>${consult.customer_phone || '-'}</td>
+                    <td>${consult.service_type || '-'}</td>
+                    <td>${consult.budget || '-'}</td>
+                    <td>${consult.business_name || '-'}</td>
+                    <td>${shortDetails}</td>
+                    <td style="text-align:center;">
+                        <button class="action-btn" style="padding:4px 10px;" onclick="openModal('consultations', ${index})">
+                            <i class="bi bi-eye-fill"></i> View
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += tableRow;
+    
+            const mobileCard = `
+                <div class="mobile-card">
+                    <div class="mobile-card-header">
+                        <span style="font-weight:700;">${consult.customer_name}</span>
+                        <span class="secondary-detail">${consult.service_type}</span>
+                    </div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Business:</span> ${consult.business_name || 'N/A'}</div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Details:</span> ${shortDetails}</div>
+                    <div style="margin-top:10px; text-align:right;">
+                        <button class="action-btn" style="width:100%; justify-content:center;" onclick="openModal('consultations', ${index})">
+                            View Full Details
+                        </button>
+                    </div>
+                </div>
+            `;
+            mobileList.innerHTML += mobileCard;
+        });
+    }
 
         // --- MODAL LOGIC ---
         function openModal(type, index) {
@@ -891,10 +891,10 @@
                 
                 const keys = {
                     'orders': ['created_at', 'customer_name', 'customer_phone', 'plan', 'amount', 'domain', 'status'],
-                    'leads': ['created_at', 'name', 'email', 'phone', 'session_id'],
+                    'leads': ['created_at', 'name', 'email', 'phone'],
                     
                     // YOUR REQUESTED KEYS
-                    'tickets': ['created_at', 'name', 'email', 'status', 'phone', 'category', 'description', 'session_id'],
+                    'tickets': ['created_at', 'name', 'email', 'status', 'phone', 'category', 'description'],
                     'consultations': ['created_at', 'customer_name', 'customer_email', 'customer_phone', 'service_type', 'budget', 'business_name', 'project_details', 'reference_link']
                 };
                 
