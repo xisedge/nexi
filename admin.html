@@ -339,6 +339,7 @@
                                 <th onclick="sortTable('tickets', 4, 'string')">Phone</th>
                                 <th onclick="sortTable('tickets', 5, 'string')">Category</th>
                                 <th onclick="sortTable('tickets', 6, 'string')">Description</th>
+                                <th onclick="sortTable('tickets', 7, 'string')">Ticket Ref</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -688,11 +689,10 @@
         }
     
         tickets.forEach((ticket, index) => {
-            // 1. Time Logic
             const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             const time = new Date(ticket.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             
-            // 2. Table Row (Uses .text-clamp instead of slice)
+            // CSS Truncation class
             const tableRow = `
                 <tr>
                     <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
@@ -702,6 +702,9 @@
                     <td>${ticket.phone || '-'}</td>
                     <td>${ticket.category || 'General'}</td>
                     <td><div class="text-clamp" title="${ticket.description}">${ticket.description}</div></td>
+                    
+                    <td class="monospace" style="font-weight:700; color:var(--primary);">${ticket.ticket_number || 'N/A'}</td>
+                    
                     <td style="text-align:center;">
                         <button class="action-btn" style="padding:4px 10px;" onclick="openModal('tickets', ${index})">
                             <i class="bi bi-eye-fill"></i> View
@@ -711,14 +714,14 @@
             `;
             tbody.innerHTML += tableRow;
             
-            // 3. Mobile Card (Clean alignment)
+            // Mobile Card
             const mobileCard = `
                 <div class="mobile-card">
                     <div class="mobile-card-header">
                         <span style="font-weight:700;">${ticket.name}</span>
-                        <span class="status-badge status-pending">${ticket.status || 'Open'}</span>
+                        <span class="status-badge status-pending">#${ticket.ticket_number || '---'}</span>
                     </div>
-                    <div class="mobile-card-detail"><span class="mobile-card-label">Issue:</span> <span>${ticket.category}</span></div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Issue:</span> ${ticket.category}</div>
                     <div class="mobile-card-detail"><span class="mobile-card-label">Desc:</span> <span style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${ticket.description}</span></div>
                     <div style="margin-top:10px; text-align:right;">
                         <button class="action-btn" style="width:100%; justify-content:center;" onclick="openModal('tickets', ${index})">
@@ -898,7 +901,7 @@
                     'leads': ['created_at', 'name', 'email', 'phone'],
                     
                     // ADDED 'null' at the end to account for the Action Button column
-                    'tickets': ['created_at', 'name', 'email', 'status', 'phone', 'category', 'description', null],
+                    'tickets': ['created_at', 'name', 'email', 'status', 'phone', 'category', 'description', 'ticket_number', null],
                     
                     // ADDED 'null' at the end
                     'consultations': ['created_at', 'customer_name', 'customer_email', 'customer_phone', 'service_type', 'budget', 'business_name', 'project_details', 'reference_link', null]
