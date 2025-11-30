@@ -155,7 +155,7 @@ exports.handler = async (event) => {
         // ACTION: GET DASHBOARD DATA (Admin Only)
         // ============================================================
         if (action === 'getDashboardData') {
-            // 1. Verify Password (Security Check)
+            // 1. Verify Password
             const { adminSecret } = body;
             if (adminSecret !== process.env.ADMIN_PASSWORD) {
                 return { 
@@ -177,15 +177,28 @@ exports.handler = async (event) => {
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (leadError || orderError) {
+            // 4. Fetch Tickets (NEW)
+            const { data: tickets, error: ticketError } = await supabase
+                .from('tickets')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            // 5. Fetch Consultations (NEW)
+            const { data: consultations, error: consultError } = await supabase
+                .from('consultations')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (leadError || orderError || ticketError || consultError) {
+                console.error("DB Error:", leadError || orderError || ticketError || consultError);
                 return { statusCode: 500, headers, body: JSON.stringify({ error: 'Database Error' }) };
             }
 
-            // 4. Return Data
+            // 6. Return ALL Data
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify({ leads, orders })
+                body: JSON.stringify({ leads, orders, tickets, consultations })
             };
         }
 
