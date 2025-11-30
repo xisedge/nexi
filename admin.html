@@ -807,7 +807,7 @@
             let contentHtml = '';
             
             if (type === 'tickets') {
-                title.innerText = `Ticket #${data.session_id.slice(0,6)}`;
+                title.innerText = `Ticket #${data.ticket_number || 'Unknown'}`;
                 contentHtml = `
                     <div class="detail-row">
                         <span class="detail-label">Status</span>
