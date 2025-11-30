@@ -24,14 +24,24 @@ async function getKnowledgeBase() {
     }
 }
 
-// --- CORS HEADERS ---
-const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
-};
+// --- SECURITY: CORS WHITELIST ---
+const allowedOrigins = [
+    'https://xisedge.tech',       // Root Domain
+    'https://www.xisedge.tech',   // WWW Version
+    'https://ops.xisedge.tech'   // Admin Dashboard
+];
 
 exports.handler = async (event) => {
+    // 1. DYNAMIC CORS LOGIC (Moved inside the handler)
+    const origin = event.headers.origin || event.headers.Origin;
+    const allowOrigin = allowedOrigins.includes(origin) ? origin : '';
+
+    const headers = {
+        'Access-Control-Allow-Origin': allowOrigin,
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    };
+    
     // 1. Handle Preflight & Methods
     if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
     if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: 'Method Not Allowed' };
