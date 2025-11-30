@@ -169,11 +169,17 @@
             border: 1px solid var(--border); margin-bottom: 12px; 
             box-shadow: 0 1px 5px rgba(0,0,0,0.05); 
             font-size: 14px;
+            border-left: 4px solid var(--primary); /* Adds a nice color accent */
         }
         .mobile-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .mobile-card-detail { margin-bottom: 4px; }
+        .mobile-card-detail { margin-bottom: 4px; display: flex; /* Aligns label and value side-by-side */ align-items: flex-start; margin-bottom: 6px;}
         .mobile-card-label { font-weight: 500; color: var(--primary); margin-right: 5px; }
         .mobile-card-value { color: var(--text); }
+        .mobile-card .mobile-card-label {
+        min-width: 70px; /* Aligns all values neatly */
+        display: inline-block;
+        color: #64748b;
+    }
         
         @media (max-width: 992px) { 
             .metrics-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -682,12 +688,11 @@
         }
     
         tickets.forEach((ticket, index) => {
-            // 1. Calculate Date AND Time
+            // 1. Time Logic
             const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             const time = new Date(ticket.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             
-            const shortDesc = (ticket.description || '').length > 40 ? (ticket.description.slice(0, 40) + '...') : ticket.description;
-    
+            // 2. Table Row (Uses .text-clamp instead of slice)
             const tableRow = `
                 <tr>
                     <td class="date-col">${date}<br><span class="secondary-detail monospace">${time}</span></td>
@@ -696,7 +701,7 @@
                     <td><span class="status-badge status-pending">${ticket.status || 'Open'}</span></td>
                     <td>${ticket.phone || '-'}</td>
                     <td>${ticket.category || 'General'}</td>
-                    <td>${shortDesc}</td>
+                    <td><div class="text-clamp" title="${ticket.description}">${ticket.description}</div></td>
                     <td style="text-align:center;">
                         <button class="action-btn" style="padding:4px 10px;" onclick="openModal('tickets', ${index})">
                             <i class="bi bi-eye-fill"></i> View
@@ -706,14 +711,15 @@
             `;
             tbody.innerHTML += tableRow;
             
+            // 3. Mobile Card (Clean alignment)
             const mobileCard = `
                 <div class="mobile-card">
                     <div class="mobile-card-header">
                         <span style="font-weight:700;">${ticket.name}</span>
                         <span class="status-badge status-pending">${ticket.status || 'Open'}</span>
                     </div>
-                    <div class="mobile-card-detail"><span class="mobile-card-label">Issue:</span> ${ticket.category}</div>
-                    <div class="mobile-card-detail"><span class="mobile-card-label">Desc:</span> ${shortDesc}</div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Issue:</span> <span>${ticket.category}</span></div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Desc:</span> <span style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${ticket.description}</span></div>
                     <div style="margin-top:10px; text-align:right;">
                         <button class="action-btn" style="width:100%; justify-content:center;" onclick="openModal('tickets', ${index})">
                             View Full Details
@@ -739,11 +745,8 @@
         }
     
         consults.forEach((consult, index) => {
-            // 1. Calculate Date AND Time
             const date = new Date(consult.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             const time = new Date(consult.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    
-            const shortDetails = (consult.project_details || '').length > 40 ? (consult.project_details.slice(0, 40) + '...') : consult.project_details;
     
             const tableRow = `
                 <tr>
@@ -754,7 +757,8 @@
                     <td>${consult.service_type || '-'}</td>
                     <td>${consult.budget || '-'}</td>
                     <td>${consult.business_name || '-'}</td>
-                    <td>${shortDetails}</td>
+                    <td><div class="text-clamp" title="${consult.project_details}">${consult.project_details}</div></td>
+                    <td>${consult.reference_link ? `<a href="${consult.reference_link}" target="_blank">Link</a>` : '-'}</td>
                     <td style="text-align:center;">
                         <button class="action-btn" style="padding:4px 10px;" onclick="openModal('consultations', ${index})">
                             <i class="bi bi-eye-fill"></i> View
@@ -770,8 +774,8 @@
                         <span style="font-weight:700;">${consult.customer_name}</span>
                         <span class="secondary-detail">${consult.service_type}</span>
                     </div>
-                    <div class="mobile-card-detail"><span class="mobile-card-label">Business:</span> ${consult.business_name || 'N/A'}</div>
-                    <div class="mobile-card-detail"><span class="mobile-card-label">Details:</span> ${shortDetails}</div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Business:</span> <span>${consult.business_name || 'N/A'}</span></div>
+                    <div class="mobile-card-detail"><span class="mobile-card-label">Details:</span> <span style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${consult.project_details}</span></div>
                     <div style="margin-top:10px; text-align:right;">
                         <button class="action-btn" style="width:100%; justify-content:center;" onclick="openModal('consultations', ${index})">
                             View Full Details
@@ -893,9 +897,11 @@
                     'orders': ['created_at', 'customer_name', 'customer_phone', 'plan', 'amount', 'domain', 'status'],
                     'leads': ['created_at', 'name', 'email', 'phone'],
                     
-                    // YOUR REQUESTED KEYS
-                    'tickets': ['created_at', 'name', 'email', 'status', 'phone', 'category', 'description'],
-                    'consultations': ['created_at', 'customer_name', 'customer_email', 'customer_phone', 'service_type', 'budget', 'business_name', 'project_details', 'reference_link']
+                    // ADDED 'null' at the end to account for the Action Button column
+                    'tickets': ['created_at', 'name', 'email', 'status', 'phone', 'category', 'description', null],
+                    
+                    // ADDED 'null' at the end
+                    'consultations': ['created_at', 'customer_name', 'customer_email', 'customer_phone', 'service_type', 'budget', 'business_name', 'project_details', 'reference_link', null]
                 };
                 
                 valA = a[keys[tableName][column]];
